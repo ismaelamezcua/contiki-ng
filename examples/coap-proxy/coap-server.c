@@ -62,8 +62,8 @@ PROCESS_THREAD(coap_server, ev, data)
   LOG_INFO("CoAP server for Node %d has started.\n", node_id);
 
   /*
-    * Bind the resources to their Uri-Path.
-    */
+   * Bind the resources to their Uri-Path.
+   */
   coap_activate_resource(&res_humidity, "sensors/humidity");
   coap_activate_resource(&res_temperature, "sensors/temperature");
 

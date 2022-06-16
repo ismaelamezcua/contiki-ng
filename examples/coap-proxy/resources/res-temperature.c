@@ -42,13 +42,11 @@
 #include "virtual-sensor.h"
 #include "coap-engine.h"
 
-static void res_get_handler(
-  coap_message_t *request,
-  coap_message_t *response,
-  uint8_t *buffer,
-  uint16_t preferred_size,
-  int32_t *offset
-);
+static void res_get_handler(coap_message_t *request,
+                            coap_message_t *response,
+                            uint8_t *buffer,
+                            uint16_t preferred_size,
+                            int32_t *offset);
 
 static void
 res_periodic_handler(void);
@@ -62,21 +60,19 @@ PERIODIC_RESOURCE(
   NULL,
   5000,
   res_periodic_handler
-);
+  );
 
 static void
-res_get_handler(
-  coap_message_t *request,
-  coap_message_t *response,
-  uint8_t *buffer,
-  uint16_t preferred_size,
-  int32_t *offset
-)
+res_get_handler(coap_message_t *request,
+                coap_message_t *response,
+                uint8_t *buffer,
+                uint16_t preferred_size,
+                int32_t *offset)
 {
   float temperature = read_temperature();
   unsigned int accept = -1;
 
-  if (accept == -1) {
+  if(accept == -1) {
     coap_set_header_content_format(response, APPLICATION_JSON);
     snprintf((char *)buffer, COAP_MAX_CHUNK_SIZE, "{\"temperature\": \"%.2f\"}", temperature);
     coap_set_payload(response, (uint8_t *)buffer, strlen((char *)buffer));
@@ -86,7 +82,6 @@ res_get_handler(
     coap_set_payload(response, message, strlen(message));
   }
 }
-
 static void
 res_periodic_handler()
 {
