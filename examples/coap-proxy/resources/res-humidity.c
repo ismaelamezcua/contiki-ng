@@ -54,8 +54,8 @@ static void
 res_periodic_handler(void);
 
 PERIODIC_RESOURCE(
-  res_temperature,
-  "title=\"Temperature Sensor\";rt=\"temperature\";obs",
+  res_humidity,
+  "title=\"Humidity Sensor\";rt=\"humidity\";obs",
   res_get_handler,
   NULL,
   NULL,
@@ -73,12 +73,12 @@ res_get_handler(
   int32_t *offset
 )
 {
-  float temperature = read_temperature();
+  float humidity = read_humidity();
   unsigned int accept = -1;
 
   if (accept == -1) {
     coap_set_header_content_format(response, APPLICATION_JSON);
-    snprintf((char *)buffer, COAP_MAX_CHUNK_SIZE, "{\"temperature\": \"%.2f\"}", temperature);
+    snprintf((char *)buffer, COAP_MAX_CHUNK_SIZE, "{\"humidity\": \"%.2f\"}", humidity);
     coap_set_payload(response, (uint8_t *)buffer, strlen((char *)buffer));
   } else {
     coap_set_status_code(response, NOT_ACCEPTABLE_4_06);
@@ -90,5 +90,5 @@ res_get_handler(
 static void
 res_periodic_handler()
 {
-  coap_notify_observers(&res_temperature);
+  coap_notify_observers(&res_humidity);
 }
