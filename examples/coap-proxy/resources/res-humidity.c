@@ -78,7 +78,7 @@ res_get_handler(
 
   if (accept == -1) {
     coap_set_header_content_format(response, APPLICATION_JSON);
-    snprintf((char *)buffer, COAP_MAX_CHUNK_SIZE, "{\"tempearture\": \"%.2f\"}", temperature);
+    snprintf((char *)buffer, COAP_MAX_CHUNK_SIZE, "{\"temperature\": \"%.2f\"}", temperature);
     coap_set_payload(response, (uint8_t *)buffer, strlen((char *)buffer));
   } else {
     coap_set_status_code(response, NOT_ACCEPTABLE_4_06);
