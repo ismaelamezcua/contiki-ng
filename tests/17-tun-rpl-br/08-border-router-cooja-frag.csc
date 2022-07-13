@@ -1,10 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <simconf>
-  <project EXPORT="discard">[APPS_DIR]/mrm</project>
-  <project EXPORT="discard">[APPS_DIR]/mspsim</project>
-  <project EXPORT="discard">[APPS_DIR]/avrora</project>
-  <project EXPORT="discard">[APPS_DIR]/serial_socket</project>
-  <project EXPORT="discard">[APPS_DIR]/powertracker</project>
   <simulation>
     <title>My simulation</title>
     <speedlimit>1.0</speedlimit>
@@ -26,7 +21,7 @@
       <description>Cooja Mote Type #1</description>
       <source>[CONTIKI_DIR]/examples/rpl-border-router/border-router.c</source>
       <commands>make TARGET=cooja clean
-make -j border-router.cooja TARGET=cooja</commands>
+make -j$(CPUS) border-router.cooja TARGET=cooja</commands>
       <moteinterface>org.contikios.cooja.interfaces.Position</moteinterface>
       <moteinterface>org.contikios.cooja.interfaces.Battery</moteinterface>
       <moteinterface>org.contikios.cooja.contikimote.interfaces.ContikiVib</moteinterface>
@@ -52,7 +47,7 @@ make -j border-router.cooja TARGET=cooja</commands>
       <description>Cooja Mote Type #2</description>
       <source>[CONTIKI_DIR]/examples/hello-world/hello-world.c</source>
       <commands>make TARGET=cooja clean
-make -j hello-world.cooja TARGET=cooja</commands>
+make -j$(CPUS) hello-world.cooja TARGET=cooja</commands>
       <moteinterface>org.contikios.cooja.interfaces.Position</moteinterface>
       <moteinterface>org.contikios.cooja.interfaces.Battery</moteinterface>
       <moteinterface>org.contikios.cooja.contikimote.interfaces.ContikiVib</moteinterface>

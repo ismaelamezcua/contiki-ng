@@ -1,10 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <simconf>
-  <project EXPORT="discard">[APPS_DIR]/mrm</project>
-  <project EXPORT="discard">[APPS_DIR]/mspsim</project>
-  <project EXPORT="discard">[APPS_DIR]/avrora</project>
-  <project EXPORT="discard">[APPS_DIR]/serial_socket</project>
-  <project EXPORT="discard">[APPS_DIR]/powertracker</project>
   <simulation>
     <title>Test of Resetting DIO Timer by DIS</title>
     <randomseed>123456</randomseed>
@@ -24,7 +19,8 @@
       <identifier>mtype325</identifier>
       <description>root</description>
       <source>[CONTIKI_DIR]/tests/14-rpl-lite/code/root-node.c</source>
-      <commands>make root-node.cooja TARGET=cooja</commands>
+      <commands>make clean TARGET=cooja
+make -j$(CPUS) root-node.cooja TARGET=cooja</commands>
       <moteinterface>org.contikios.cooja.interfaces.Position</moteinterface>
       <moteinterface>org.contikios.cooja.interfaces.Battery</moteinterface>
       <moteinterface>org.contikios.cooja.contikimote.interfaces.ContikiVib</moteinterface>
@@ -49,7 +45,7 @@
       <identifier>mtype151</identifier>
       <description>dis-sender</description>
       <source>[CONTIKI_DIR]/tests/14-rpl-lite/code/dis-sender.c</source>
-      <commands>make dis-sender.cooja TARGET=cooja</commands>
+      <commands>make -j$(CPUS) dis-sender.cooja TARGET=cooja</commands>
       <moteinterface>org.contikios.cooja.interfaces.Position</moteinterface>
       <moteinterface>org.contikios.cooja.interfaces.Battery</moteinterface>
       <moteinterface>org.contikios.cooja.contikimote.interfaces.ContikiVib</moteinterface>

@@ -1,8 +1,23 @@
 # -*- makefile -*-
 
-ifndef CONTIKI
-  ${error CONTIKI not defined! You must specify where Contiki resides}
+# Set CONTIKI to the directory where Makefile.include resides.
+CONTIKI := $(patsubst %/,%,$(dir $(lastword $(MAKEFILE_LIST))))
+
+# Give an error message when using an old version of GNU Make.
+MAKE_MAJOR_VERSION := $(word 1,$(subst ., ,$(MAKE_VERSION)))
+ifeq ($(shell test $(MAKE_MAJOR_VERSION) -lt 4; echo $$?),0)
+  $(error GNU Make version 4.0 or newer is required)
 endif
+
+# Only use rules from the Makefiles. This eliminates a lot
+# of attempted matches from the implicit rules for SCCS.
+MAKEFLAGS += --no-builtin-rules
+
+# Despite --no-builtin-rules, make insists on "remaking" the included
+# Makefiles, so disable that with these empty rules. This saves 200+ lines
+# of rule matching on "make -d TARGET=native" on hello-world.
+Makefile: ;
+Makefile.%: ;
 
 ### Include a helper Makefile that creates variables for all Contiki-NG path
 ### locations.
@@ -41,6 +56,15 @@ ifdef CI
   endif
 endif
 
+ifneq (, $(shell which ccache))
+  CCACHE ?= ccache
+endif
+
+# Command converting lowercase to uppercase, and "-" and "/" to "_".
+UPPERCASE_CMD = tr '[:lower:][\-/]' '[:upper:][__]'
+
+JAVA = java
+
 BUILD_DIR = build
 BUILD_DIR_TARGET = $(BUILD_DIR)/$(TARGET)
 BUILD_DIR_TARGET_BOARD = $(BUILD_DIR_TARGET)/$(BOARD)
@@ -49,16 +73,11 @@ BUILD_DIR_FULL = $(BUILD_DIR_TARGET_BOARD:/=)/$(BUILD_DIR_CONFIG)
 # Ditto if BUILD_DIR_CONFIG was empty
 BUILD_DIR_BOARD = $(BUILD_DIR_FULL:/=)
 OBJECTDIR = $(BUILD_DIR_BOARD)/obj
+DEPDIR = $(OBJECTDIR)/.deps
 
-CONTIKI_NG_TARGET_LIB = $(BUILD_DIR_BOARD)/contiki-ng-$(TARGET).a
-
-LOWERCASE = -abcdefghijklmnopqrstuvwxyz/
-UPPERCASE = _ABCDEFGHIJKLMNOPQRSTUVWXYZ_
-TARGET_UPPERCASE := ${strip ${shell echo $(TARGET) | sed y!$(LOWERCASE)!$(UPPERCASE)!}}
+TARGET_UPPERCASE := ${shell echo $(TARGET) | $(UPPERCASE_CMD)}
 CFLAGS += -DCONTIKI=1 -DCONTIKI_TARGET_$(TARGET_UPPERCASE)=1
 CFLAGS += -DCONTIKI_TARGET_STRING=\"$(TARGET)\"
-
-CFLAGS += -Wno-unused-const-variable
 
 LDFLAGS_WERROR ?= -Wl,--fatal-warnings
 
@@ -86,25 +105,29 @@ $(1) \
 }}}}
 endef
 
-CONTIKI_OBJECTFILES = ${addprefix $(OBJECTDIR)/,${call oname, $(CONTIKI_SOURCEFILES)}}
-PROJECT_OBJECTFILES = ${addprefix $(OBJECTDIR)/,${call oname, $(PROJECT_SOURCEFILES)}}
-
 uniq = $(if $1,$(firstword $1) $(call uniq,$(filter-out $(firstword $1),$1)))
 
-### Include target makefile (TODO Unsafe?)
-
+# Identify if the target makefile is in-tree, or from $(TARGETDIRS).
 target_makefile := $(wildcard $(CONTIKI_NG_RELOC_PLATFORM_DIR)/$(TARGET)/Makefile.$(TARGET) \
                    $(foreach TDIR, $(TARGETDIRS), $(TDIR)/$(TARGET)/Makefile.$(TARGET)))
 
-# Check if the target makefile exists, and create the object directory if necessary.
+# Ensure there is exactly one target makefile found.
 ifeq ($(strip $(target_makefile)),)
   ${error The target platform "$(TARGET)" does not exist (maybe it was misspelled?)}
-else
-  ifneq (1, ${words $(target_makefile)})
-    ${error More than one TARGET Makefile found: $(target_makefile)}
-  endif
-  include $(target_makefile)
 endif
+ifneq (1, ${words $(target_makefile)})
+  ${error More than one TARGET Makefile found: $(target_makefile)}
+endif
+
+# Include the target makefile.
+include $(target_makefile)
+ifneq ($(MAKECMDGOALS),clean)
+  ifeq (, $(shell which $(CC)))
+    $(error Target "$(TARGET)" compiler "$(CC)" cannot be found)
+  endif
+endif
+
+CP ?= cp
 
 # Decide whether to build or to skip this target for this platform
 ifneq ("", "$(PLATFORMS_ONLY)")
@@ -135,13 +158,13 @@ endif # $(BOARD) not empty
 
 PLATFORM_ACTION ?= build
 
-# Provide way to create $(OBJECTDIR) if it has been removed by make clean
-$(OBJECTDIR):
+# Provide way to create directories that have been removed by make clean.
+$(OBJECTDIR) $(DEPDIR):
 	$(TRACE_MKDIR)
 	$(Q)mkdir -p $@
 
 ifneq ($(BOARD),)
-  TARGET_BOARD_UPPERCASE := ${strip ${shell echo $(BOARD) | sed y!$(LOWERCASE)!$(UPPERCASE)!}}
+  TARGET_BOARD_UPPERCASE := ${shell echo $(BOARD) | $(UPPERCASE_CMD)}
   CFLAGS += -DCONTIKI_BOARD_$(TARGET_BOARD_UPPERCASE)=1
   CFLAGS += -DCONTIKI_BOARD_STRING=\"$(BOARD)\"
 endif
@@ -194,6 +217,9 @@ MAKE_NET ?= MAKE_NET_IPV6
 ifeq ($(MAKE_NET),MAKE_NET_NULLNET)
   CFLAGS += -DNETSTACK_CONF_WITH_NULLNET=1
   MODULES += $(CONTIKI_NG_NET_DIR)/nullnet
+  # SLIP uses the rxbuf defined in uIP.
+  MODULES_SOURCES_EXCLUDES += slip.c
+  CONTIKI_SOURCES_EXCLUDES_NATIVE += tun6-net.c
 endif
 
 ifeq ($(MAKE_NET),MAKE_NET_IPV6)
@@ -235,7 +261,6 @@ endif
 MODULEDIRS = $(MODULES_REL) ${addprefix $(CONTIKI)/, $(MODULES)}
 UNIQUEMODULES = $(call uniq,$(MODULEDIRS))
 MODULES_SOURCES = ${foreach d, $(UNIQUEMODULES), ${subst ${d}/,,${wildcard $(d)/*.c}}}
-CONTIKI_SOURCEFILES += $(MODULES_SOURCES)
 
 # Include module-specific makefiles
 MODULES_INCLUDES = ${wildcard ${foreach d, $(UNIQUEMODULES), $(d)/Makefile.${notdir $(d)}}}
@@ -273,7 +298,7 @@ ifeq ($(V),1)
   TRACE_OBJDUMP  =
   TRACE_MKDIR =
   TRACE_CP =
-  Q=
+  Q ?=
 else
   TRACE_CC = @echo "  CC       " $<
   TRACE_CXX = @echo "  CXX      " $<
@@ -284,7 +309,7 @@ else
   TRACE_OBJDUMP  = @echo "  OBJDUMP  " $< "-->" $@
   TRACE_MKDIR = @echo "  MKDIR    " $@
   TRACE_CP       = @echo "  CP       " $< "-->" $@
-  Q=@
+  Q ?= @
 endif
 
 ### Forward comma-separated list of arbitrary defines to the compiler
@@ -322,56 +347,63 @@ else
 CFLAGS += -DCONTIKI_VERSION_STRING=\"Contiki-NG\"
 endif
 
-### Automatic dependency generation
-
-ifneq ($(MAKECMDGOALS),clean)
--include ${addprefix $(OBJECTDIR)/,$(CONTIKI_SOURCEFILES:.c=.d) \
-                                   $(PROJECT_SOURCEFILES:.c=.d)}
--include ${addprefix $(OBJECTDIR)/,$(PROJECT_SOURCEFILES:.cpp=.d)}
-endif
-
-### See http://make.paulandlesley.org/autodep.html#advanced
-
-define FINALIZE_DEPENDENCY
-cp $(@:.o=.d) $(@:.o=.$$$$); \
-sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' \
-    -e '/^$$/ d' -e 's/$$/ :/' < $(@:.o=.$$$$) >> $(@:.o=.d); \
-rm -f $(@:.o=.$$$$)
-endef
-
 ### Harmonize filename of a .map file, if the platform's build system wants
 ### to create one
 CONTIKI_NG_PROJECT_MAP = $(BUILD_DIR_BOARD)/$(basename $(notdir $@)).map
 
-.PHONY: clean distclean usage help targets boards savetarget savedefines viewconf
+# At this stage, all source files for the build have been defined, so
+# define the corresponding object files.
+#
+# The logic is that the general build system adds source files with wildcards,
+# and architectures/applications can specify exclusions to that through
+# variables ending with _EXCLUDES and _EXCLUDES_$(TARGET_UPPERCASE).
+CONTIKI_SOURCEFILES += $(filter-out $(MODULES_SOURCES_EXCLUDES) $(MODULES_SOURCES_EXCLUDES_$(TARGET_UPPERCASE)), $(MODULES_SOURCES))
+CONTIKI_FILTERED_SOURCEFILES = $(filter-out $(CONTIKI_SOURCES_EXCLUDES) $(CONTIKI_SOURCES_EXCLUDES_$(TARGET_UPPERCASE)), $(CONTIKI_SOURCEFILES))
+CONTIKI_OBJECTFILES += ${addprefix $(OBJECTDIR)/,${call oname, $(CONTIKI_FILTERED_SOURCEFILES)}}
+PROJECT_FILTERED_SOURCEFILES = $(filter-out $(PROJECT_SOURCES_EXCLUDES) $(PROJECT_SOURCES_EXCLUDES_$(TARGET_UPPERCASE)), $(PROJECT_SOURCEFILES))
+PROJECT_OBJECTFILES += ${addprefix $(OBJECTDIR)/,${call oname, $(PROJECT_FILTERED_SOURCEFILES)}}
+
+.PHONY: all clean distclean usage help targets boards savetarget savedefines viewconf
 
 clean:
-	-$(Q)rm -f *.d *.e *.o $(CLEAN)
-	-$(Q)rm -rf $(BUILD_DIR_TARGET)
-	-$(Q)rm -f $(addsuffix .$(TARGET), $(CONTIKI_PROJECT))
-	@echo Target $(TARGET) cleaned
+	$(Q)rm -f *.d *.e *.o $(CLEAN) \
+		$(addsuffix .$(TARGET), $(CONTIKI_PROJECT))
+	$(Q)rm -rf $(BUILD_DIR_TARGET)
 
 distclean:
-	@for TARG in `ls $(CONTIKI_NG_RELOC_PLATFORM_DIR) $(TARGETDIRS)`; do \
-		echo Running: $(MAKE) TARGET=$$TARG clean; \
+	$(Q)for TARG in `ls $(CONTIKI_NG_RELOC_PLATFORM_DIR) $(TARGETDIRS)`; do \
 		$(MAKE) TARGET=$$TARG clean; \
 	done
-	-$(Q)rm -rf $(BUILD_DIR)
+	$(Q)rm -rf $(BUILD_DIR)
 
--include $(CONTIKI_NG_RELOC_PLATFORM_DIR)/$(TARGET)/Makefile.customrules-$(TARGET)
+### Automatic dependency generation, see
+### http://make.mad-scientist.net/papers/advanced-auto-dependency-generation/#advanced
+
+DEPFLAGS ?= -MT $@ -MMD -MP -MF $(DEPDIR)/$*.d
+
+# PROJECT_SOURCEFILES can contain anything, perform one substitution for each
+# file type and filter out the results we want. Without the filter, DEPFILES
+# will contain cpp files from the first PROJECT_SOURCEFILES and c files from
+# the second PROJECT_SOURCEFILES.
+DEPFILES := ${filter %.d, $(CONTIKI_SOURCEFILES:%.c=$(DEPDIR)/%.d) \
+                          $(PROJECT_SOURCEFILES:%.c=$(DEPDIR)/%.d) \
+                          $(PROJECT_SOURCEFILES:%.cpp=$(DEPDIR)/%.d)}
+$(DEPFILES):
+include $(wildcard $(DEPFILES))
+
+# Include custom build rule Makefiles specified by platforms/CPUs.
+include $(MAKEFILES_CUSTOMRULES)
 
 ifndef CUSTOM_RULE_C_TO_OBJECTDIR_O
-$(OBJECTDIR)/%.o: %.c | $(OBJECTDIR)
+$(OBJECTDIR)/%.o: %.c | $(DEPDIR)
 	$(TRACE_CC)
-	$(Q)$(CC) $(CFLAGS) -MMD -c $< -o $@
-	@$(FINALIZE_DEPENDENCY)
+	$(Q)$(CCACHE) $(CC) $(CFLAGS) $(DEPFLAGS) -c $< -o $@
 endif
 
 ifndef CUSTOM_RULE_CPP_TO_OBJECTDIR_O
-$(OBJECTDIR)/%.o: %.cpp | $(OBJECTDIR)
+$(OBJECTDIR)/%.o: %.cpp | $(DEPDIR)
 	$(TRACE_CXX)
-	$(Q)$(CXX) $(CXXFLAGS) -MMD -c $< -o $@
-	@$(FINALIZE_DEPENDENCY)
+	$(Q)$(CCACHE) $(CXX) $(CXXFLAGS) $(DEPFLAGS) -c $< -o $@
 endif
 
 ifndef CUSTOM_RULE_S_TO_OBJECTDIR_O
@@ -386,65 +418,29 @@ endif
 ifndef CUSTOM_RULE_C_TO_OBJECTDIR_S
 $(OBJECTDIR)/%.s: %.c | $(OBJECTDIR)
 	$(TRACE_CC)
-	$(Q)$(CC) $(CFLAGS) -S $< -o $@
+	$(Q)$(CCACHE) $(CC) $(CFLAGS) -S $< -o $@
 endif
 
 ifndef CUSTOM_RULE_CPP_TO_OBJECTDIR_S
 $(OBJECTDIR)/%.s: %.cpp | $(OBJECTDIR)
 	$(TRACE_CXX)
-	$(Q)$(CXX) $(CXXFLAGS) -S $< -o $@
+	$(Q)$(CCACHE) $(CXX) $(CXXFLAGS) -S $< -o $@
 endif
 
 ifndef CUSTOM_RULE_C_TO_OBJECTDIR_E
 $(OBJECTDIR)/%.e: %.c | $(OBJECTDIR)
 	$(TRACE_CC)
-	$(Q)$(CC) $(CFLAGS) -E $< -o $@
+	$(Q)$(CCACHE) $(CC) $(CFLAGS) -E $< -o $@
 endif
 
 ifndef CUSTOM_RULE_CPP_TO_OBJECTDIR_E
 $(OBJECTDIR)/%.e: %.cpp | $(OBJECTDIR)
 	$(TRACE_CXX)
-	$(Q)$(CXX) $(CXXFLAGS) -E $< -o $@
-endif
-
-ifndef CUSTOM_RULE_C_TO_O
-%.o: %.c
-	$(TRACE_CC)
-	$(Q)$(CC) $(CFLAGS) -c $< -o $@
-endif
-
-ifndef CUSTOM_RULE_CPP_TO_O
-%.o: %.cpp
-	$(TRACE_CXX)
-	$(Q)$(CXX) $(CXXFLAGS) -c $< -o $@
-endif
-
-ifndef CUSTOM_RULE_C_TO_S
-%.s: %.c
-	$(TRACE_CC)
-	$(Q)$(CC) $(CFLAGS) -S $< -o $@
-endif
-
-ifndef CUSTOM_RULE_C_TO_E
-%.e: %.c
-	$(TRACE_CC)
-	$(Q)$(CC) $(CFLAGS) -E $< -o $@
-endif
-
-ifndef CUSTOM_RULE_CPP_TO_E
-%.e: %.cpp
-	$(TRACE_CXX)
-	$(Q)$(CXX) $(CXXFLAGS) -E $< -o $@
+	$(Q)$(CCACHE) $(CXX) $(CXXFLAGS) -E $< -o $@
 endif
 
 ifndef AROPTS
-  AROPTS = rcf
-endif
-
-ifndef CUSTOM_RULE_ALLOBJS_TO_TARGETLIB
-$(CONTIKI_NG_TARGET_LIB): $(CONTIKI_OBJECTFILES)
-	$(TRACE_AR)
-	$(Q)$(AR) $(AROPTS) $@ $^
+  AROPTS = rc
 endif
 
 ifndef LD
@@ -452,15 +448,30 @@ ifndef LD
 endif
 
 ifndef CUSTOM_RULE_LINK
-$(BUILD_DIR_BOARD)/%.$(TARGET): %.o $(PROJECT_OBJECTFILES) $(PROJECT_LIBRARIES) $(CONTIKI_NG_TARGET_LIB)
+# Targets can define LD_START_GROUP and LD_END_GROUP to resolve circular
+# dependencies between linked libraries, see:
+# https://stackoverflow.com/questions/5651869/gcc-what-are-the-start-group-and-end-group-command-line-options/5651895
+# These are not defined by default since it has a significant performance cost.
+TARGET_LIBEXTRAS = $(LD_START_GROUP) $(TARGET_LIBFILES) $(LD_END_GROUP)
+
+# Cooja passes LIBNAME through the environment and all .csc files contain
+# calls to make with a target that is *not* what Cooja needs. Add
+# a compatibility line for link rule so we can have a single rule that
+# outputs to LIBNAME on all platforms.
+$(BUILD_DIR_BOARD)/%.$(TARGET): LIBNAME ?= $@
+$(BUILD_DIR_BOARD)/%.$(TARGET): $(OBJECTDIR)/%.o $(PROJECT_OBJECTFILES) $(PROJECT_LIBRARIES) $(CONTIKI_OBJECTFILES)
+ifdef REDEFINE_PRINTF
+	@echo Redefining printf,sprintf,vsnprintf,etc.
+	$(Q)$(foreach OBJ,$^, $(OBJCOPY) --redefine-syms $(CONTIKI)/arch/platform/$(TARGET)/redefine.syms $(OBJ); )
+endif
 	$(TRACE_LD)
 	$(Q)$(LD) $(LDFLAGS) $(TARGET_STARTFILES) ${filter-out %.a,$^} \
-	    ${filter %.a,$^} $(TARGET_LIBFILES) -o $@
+	    ${filter %.a,$^} $(TARGET_LIBEXTRAS) -o $(LIBNAME)
 endif
 
 %.$(TARGET): $(BUILD_DIR_BOARD)/%.$(TARGET)
 	$(TRACE_CP)
-	$(Q)cp $< $@
+	$(Q)$(CP) $< $@
 
 %.ramprof: %.$(TARGET)
 	$(NM) -S -td --size-sort $< | grep -i " [abdrw] " | cut -d' ' -f2,4
@@ -481,7 +492,7 @@ else
 endif
 
 savetarget:
-	-@rm -f Makefile.target
+	@rm -f Makefile.target
 	@echo "saving Makefile.target"
 	@echo >Makefile.target "TARGET = $(TARGET)"
 ifneq ($(BOARD),)
@@ -489,7 +500,7 @@ ifneq ($(BOARD),)
 endif
 
 savedefines:
-	-@rm -f Makefile.$(TARGET).defines
+	@rm -f Makefile.$(TARGET).defines
 	@echo "saving Makefile.$(TARGET).defines"
 	@echo >Makefile.$(TARGET).defines "DEFINES = $(DEFINES)"
 
@@ -513,6 +524,17 @@ endif
 	@echo "To view more Make variables, edit $(CONTIKI)/Makefile.include, rule 'viewconf'"
 	@echo "To view more C variables, edit $(VIEWCONF)"
 
+###
+### Targets using tools/motelist
+###
+CONTIKI_NG_MOTELIST_DIR = $(CONTIKI_NG_TOOLS_DIR)/motelist
+CONTIKI_NG_MOTELIST = $(CONTIKI_NG_MOTELIST_DIR)/motelist.py
+
+.PHONY: motelist-all
+
+motelist-all:
+	$(Q)$(CONTIKI_NG_MOTELIST)
+
 ### Include Makefile.embedded for relevant platforms, in order to pull in
 ### rules for login, serialview etc
 ifeq ($(findstring $(TARGET),native cooja),)
@@ -525,11 +547,6 @@ include $(CONTIKI)/Makefile.gcc
 # Don't treat $(BUILD_DIR_BOARD)/%.$(TARGET) and $(TARGET) as intermediate
 # files because for many platforms they are in fact the primary target.
 .PRECIOUS: $(BUILD_DIR_BOARD)/%.$(TARGET) %.$(TARGET)
-
-# Cancel the predefined implict rule for compiling and linking
-# a single C source into a binary to force GNU make to consider
-# the match-anything rule below instead.
-%: %.c
 
 ifeq ($(PLATFORM_ACTION),skip)
 # Skip this target.

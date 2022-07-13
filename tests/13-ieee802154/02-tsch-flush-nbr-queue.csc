@@ -1,10 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <simconf>
-  <project EXPORT="discard">[APPS_DIR]/mrm</project>
-  <project EXPORT="discard">[APPS_DIR]/mspsim</project>
-  <project EXPORT="discard">[APPS_DIR]/avrora</project>
-  <project EXPORT="discard">[APPS_DIR]/serial_socket</project>
-  <project EXPORT="discard">[APPS_DIR]/powertracker</project>
   <simulation>
     <title>My simulation</title>
     <randomseed>123456</randomseed>
@@ -24,7 +19,8 @@
       <identifier>mtype476</identifier>
       <description>Cooja Mote Type #1</description>
       <source>[CONFIG_DIR]/code-flush-nbr-queue/test-flush-nbr-queue.c</source>
-      <commands>make -j test-flush-nbr-queue.cooja TARGET=cooja</commands>
+      <commands>make clean TARGET=cooja
+make -j$(CPUS) test-flush-nbr-queue.cooja TARGET=cooja</commands>
       <moteinterface>org.contikios.cooja.interfaces.Position</moteinterface>
       <moteinterface>org.contikios.cooja.interfaces.Battery</moteinterface>
       <moteinterface>org.contikios.cooja.contikimote.interfaces.ContikiVib</moteinterface>

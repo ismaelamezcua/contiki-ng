@@ -1,10 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <simconf>
-  <project EXPORT="discard">[APPS_DIR]/mrm</project>
-  <project EXPORT="discard">[APPS_DIR]/mspsim</project>
-  <project EXPORT="discard">[APPS_DIR]/avrora</project>
-  <project EXPORT="discard">[APPS_DIR]/serial_socket</project>
-  <project EXPORT="discard">[APPS_DIR]/powertracker</project>
   <simulation>
     <title>My simulation</title>
     <speedlimit>1.0</speedlimit>
@@ -25,8 +20,8 @@
       <identifier>mtype787</identifier>
       <description>Cooja Mote Type #1</description>
       <source>[CONTIKI_DIR]/tests/09-ipv6/code/node.c</source>
-      <commands>make clean
-      make WITH_ULA=1 WITH_CSMA=1 WITHOUT_RPL=1 node.cooja</commands>
+      <commands>make TARGET=cooja clean
+      make -j$(CPUS) WITH_ULA=1 WITH_CSMA=1 WITHOUT_RPL=1 node.cooja</commands>
       <moteinterface>org.contikios.cooja.interfaces.Position</moteinterface>
       <moteinterface>org.contikios.cooja.interfaces.Battery</moteinterface>
       <moteinterface>org.contikios.cooja.contikimote.interfaces.ContikiVib</moteinterface>
