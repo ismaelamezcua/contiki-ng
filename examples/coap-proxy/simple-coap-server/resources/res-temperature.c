@@ -69,12 +69,12 @@ res_get_handler(coap_message_t *request,
                 uint16_t preferred_size,
                 int32_t *offset)
 {
-  float temperature = read_temperature();
+  int temperature = read_temperature();
   unsigned int accept = -1;
 
   if(accept == -1) {
     coap_set_header_content_format(response, APPLICATION_JSON);
-    snprintf((char *)buffer, COAP_MAX_CHUNK_SIZE, "{\"temperature\": \"%.2f\"}", temperature);
+    snprintf((char *)buffer, COAP_MAX_CHUNK_SIZE, "{\"temperature\": \"%d\"}", temperature);
     coap_set_payload(response, (uint8_t *)buffer, strlen((char *)buffer));
   } else {
     coap_set_status_code(response, NOT_ACCEPTABLE_4_06);

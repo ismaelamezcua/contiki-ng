@@ -42,11 +42,6 @@
 #include "virtual-sensor.h"
 #include "coap-engine.h"
 
-#include "sys/log.h"
-#define LOG_MODULE "CoAP Server Humidity"
-#define LOG_LEVEL LOG_LEVEL_INFO
-
-
 static void res_get_handler(coap_message_t *request,
                             coap_message_t *response,
                             uint8_t *buffer,
@@ -74,13 +69,13 @@ res_get_handler(coap_message_t *request,
                 uint16_t preferred_size,
                 int32_t *offset)
 {
-  float humidity = read_humidity();
-  LOG_INFO("res-humidity: %f", humidity);
+  int humidity = read_humidity();
+
   unsigned int accept = -1;
 
   if(accept == -1) {
     coap_set_header_content_format(response, APPLICATION_JSON);
-    snprintf((char *)buffer, COAP_MAX_CHUNK_SIZE, "{\"humidity\": \"%.2f\"}", humidity);
+    snprintf((char *)buffer, COAP_MAX_CHUNK_SIZE, "{\"humidity\": \"%d\"}", humidity);
     coap_set_payload(response, (uint8_t *)buffer, strlen((char *)buffer));
   } else {
     coap_set_status_code(response, NOT_ACCEPTABLE_4_06);

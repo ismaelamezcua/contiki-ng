@@ -51,7 +51,7 @@
 #define LOG_LEVEL LOG_LEVEL_APP
 
 #define SERVER_EP "coap://[fe80::201:1:1:1]"
-#define TOGGLE_INTERVAL 10
+#define TOGGLE_INTERVAL 2
 
 PROCESS(simple_coap_client, "Simple CoAP Client");
 AUTOSTART_PROCESSES(&simple_coap_client);

@@ -29,8 +29,7 @@
  */
 /**
  * \file
- *         This is a simple CoAP server that simulates a humidity and
- *         temperature sensors.
+ *         CoAP server project configuration
  *
  * \author
  *         Ismael Amezcua Valdovinos <ismaelamezcua@ucol.mx>
@@ -38,39 +37,9 @@
  *
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "contiki.h"
-#include "coap-engine.h"
-#include "node-id.h"
+#ifndef PROJECT_CONF_H_
+#define PROJECT_CONF_H_
 
-/* Log configuration */
-#include "coap-log.h"
-#define LOG_MODULE "Simple CoAP Server"
-#define LOG_LEVEL LOG_LEVEL_APP
+#define LOG_LEVEL_APP LOG_LEVEL_DBG
 
-extern coap_resource_t res_humidity, res_temperature;
-
-PROCESS(simple_coap_server, "Simple CoAP Server");
-AUTOSTART_PROCESSES(&simple_coap_server);
-
-PROCESS_THREAD(simple_coap_server, ev, data)
-{
-  PROCESS_BEGIN();
-  PROCESS_PAUSE();
-
-  LOG_INFO("Simple CoAP server for Node %d has started.\n", node_id);
-
-  /*
-   * Bind the resources to their Uri-Path.
-   */
-  coap_activate_resource(&res_humidity, "sensors/humidity");
-  coap_activate_resource(&res_temperature, "sensors/temperature");
-
-  while(1) {
-    PROCESS_WAIT_EVENT();
-  }
-
-  PROCESS_END();
-}
+#endif

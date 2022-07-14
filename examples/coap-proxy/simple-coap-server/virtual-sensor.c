@@ -38,21 +38,28 @@
  */
 
 #include "virtual-sensor.h"
+#include <stdio.h>
 #include <stdlib.h>
+#include "lib/random.h"
 
-float
-random_value(float min, float max)
+/* Log configuration */
+#include "coap-log.h"
+#define LOG_MODULE "Simple CoAP Server: Humidity Sensor"
+#define LOG_LEVEL LOG_LEVEL_APP
+
+int
+random_value(int min, int max)
 {
-  float scale = rand() / (float)RAND_MAX;
-
-  return min + scale * (max - min);
+  int result = min + random_rand() % (max - min);
+ 
+  return result;
 }
-float
+int
 read_temperature()
 {
   return random_value(0, 35);
 }
-float
+int
 read_humidity()
 {
   return random_value(40, 80);
