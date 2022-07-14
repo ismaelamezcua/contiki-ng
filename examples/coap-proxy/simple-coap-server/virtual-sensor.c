@@ -51,7 +51,7 @@ int
 random_value(int min, int max)
 {
   int result = min + random_rand() % (max - min);
- 
+
   return result;
 }
 int
