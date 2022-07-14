@@ -42,6 +42,11 @@
 #include "virtual-sensor.h"
 #include "coap-engine.h"
 
+#include "sys/log.h"
+#define LOG_MODULE "CoAP Server Humidity"
+#define LOG_LEVEL LOG_LEVEL_INFO
+
+
 static void res_get_handler(coap_message_t *request,
                             coap_message_t *response,
                             uint8_t *buffer,
@@ -70,7 +75,7 @@ res_get_handler(coap_message_t *request,
                 int32_t *offset)
 {
   float humidity = read_humidity();
-  printf("res-humidity: %f", humidity);
+  LOG_INFO("res-humidity: %f", humidity);
   unsigned int accept = -1;
 
   if(accept == -1) {
