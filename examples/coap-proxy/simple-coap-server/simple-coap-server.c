@@ -52,7 +52,7 @@
 extern coap_resource_t res_humidity, res_temperature;
 
 PROCESS(simple_coap_server, "Simple CoAP Server");
-AUTOSTART_PROCESSES(&coap_server);
+AUTOSTART_PROCESSES(&simple_coap_server);
 
 PROCESS_THREAD(simple_coap_server, ev, data)
 {
