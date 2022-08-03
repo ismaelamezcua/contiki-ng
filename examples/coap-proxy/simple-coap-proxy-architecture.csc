@@ -19,7 +19,7 @@
     </events>
     <motetype>
       org.contikios.cooja.contikimote.ContikiMoteType
-      <identifier>mtype643</identifier>
+      <identifier>mtype454</identifier>
       <description>CoAP Server</description>
       <source>[CONTIKI_DIR]/examples/coap-proxy/simple-coap-server/simple-coap-server.c</source>
       <commands>make -j$(CPUS) simple-coap-server.cooja TARGET=cooja</commands>
@@ -43,7 +43,7 @@
     </motetype>
     <motetype>
       org.contikios.cooja.contikimote.ContikiMoteType
-      <identifier>mtype272</identifier>
+      <identifier>mtype400</identifier>
       <description>CoAP Proxy</description>
       <source>[CONTIKI_DIR]/examples/coap-proxy/simple-coap-proxy/simple-coap-proxy.c</source>
       <commands>make -j$(CPUS) simple-coap-proxy.cooja TARGET=cooja</commands>
@@ -67,7 +67,7 @@
     </motetype>
     <motetype>
       org.contikios.cooja.contikimote.ContikiMoteType
-      <identifier>mtype892</identifier>
+      <identifier>mtype862</identifier>
       <description>CoAP Client</description>
       <source>[CONTIKI_DIR]/examples/coap-proxy/simple-coap-client/simple-coap-client.c</source>
       <commands>make -j$(CPUS) simple-coap-client.cooja TARGET=cooja</commands>
@@ -92,8 +92,8 @@
     <mote>
       <interface_config>
         org.contikios.cooja.interfaces.Position
-        <x>99.7123442338591</x>
-        <y>-0.10239061523137849</y>
+        <x>99.89737367977395</x>
+        <y>0.0637277867677789</y>
         <z>0.0</z>
       </interface_config>
       <interface_config>
@@ -105,13 +105,13 @@
         <bitrate>250.0</bitrate>
       </interface_config>
       <interface_config>org.contikios.cooja.contikimote.interfaces.ContikiEEPROM</interface_config>
-      <motetype_identifier>mtype643</motetype_identifier>
+      <motetype_identifier>mtype400</motetype_identifier>
     </mote>
     <mote>
       <interface_config>
         org.contikios.cooja.interfaces.Position
-        <x>140.13731123853532</x>
-        <y>0.2875717270041642</y>
+        <x>99.72233446447962</x>
+        <y>40.01814681615178</y>
         <z>0.0</z>
       </interface_config>
       <interface_config>
@@ -123,13 +123,13 @@
         <bitrate>250.0</bitrate>
       </interface_config>
       <interface_config>org.contikios.cooja.contikimote.interfaces.ContikiEEPROM</interface_config>
-      <motetype_identifier>mtype272</motetype_identifier>
+      <motetype_identifier>mtype862</motetype_identifier>
     </mote>
     <mote>
       <interface_config>
         org.contikios.cooja.interfaces.Position
-        <x>180.39383904005493</x>
-        <y>-0.06156792615834483</y>
+        <x>128.05812619602443</x>
+        <y>-29.614776816998635</y>
         <z>0.0</z>
       </interface_config>
       <interface_config>
@@ -141,13 +141,13 @@
         <bitrate>250.0</bitrate>
       </interface_config>
       <interface_config>org.contikios.cooja.contikimote.interfaces.ContikiEEPROM</interface_config>
-      <motetype_identifier>mtype892</motetype_identifier>
+      <motetype_identifier>mtype454</motetype_identifier>
     </mote>
   </simulation>
   <plugin>
     org.contikios.cooja.plugins.SimControl
     <width>280</width>
-    <z>1</z>
+    <z>0</z>
     <height>160</height>
     <location_x>400</location_x>
     <location_y>0</location_y>
@@ -161,10 +161,10 @@
       <skin>org.contikios.cooja.plugins.skins.TrafficVisualizerSkin</skin>
       <skin>org.contikios.cooja.plugins.skins.UDGMVisualizerSkin</skin>
       <skin>org.contikios.cooja.plugins.skins.AddressVisualizerSkin</skin>
-      <viewport>2.3834680534041115 0.0 0.0 2.3834680534041115 -105.12140392506517 173.5055672978455</viewport>
+      <viewport>2.199838804942011 0.0 0.0 2.199838804942011 -35.14062474423172 126.52730614234022</viewport>
     </plugin_config>
     <width>400</width>
-    <z>0</z>
+    <z>1</z>
     <height>400</height>
     <location_x>1</location_x>
     <location_y>1</location_y>
@@ -177,8 +177,8 @@
       <coloring />
     </plugin_config>
     <width>1960</width>
-    <z>4</z>
-    <height>240</height>
+    <z>2</z>
+    <height>555</height>
     <location_x>400</location_x>
     <location_y>160</location_y>
   </plugin>
@@ -194,7 +194,7 @@
       <zoomfactor>500.0</zoomfactor>
     </plugin_config>
     <width>2360</width>
-    <z>3</z>
+    <z>4</z>
     <height>166</height>
     <location_x>0</location_x>
     <location_y>1174</location_y>
@@ -206,7 +206,7 @@
       <decorations>true</decorations>
     </plugin_config>
     <width>1680</width>
-    <z>2</z>
+    <z>3</z>
     <height>160</height>
     <location_x>680</location_x>
     <location_y>0</location_y>
