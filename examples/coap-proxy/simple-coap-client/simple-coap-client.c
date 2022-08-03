@@ -61,7 +61,7 @@ static struct etimer timer;
 /* Example URIs that can be queried */
 #define NUMBER_OF_URLS 3
 char *service_urls[NUMBER_OF_URLS] =
-{ ".well-known/core", "/sensors/temperature", "/sensors/humidity" };
+{ "/.well-known/core", "/hello", "/sensors/humidity" };
 static int uri_switch = 0;
 
 /* This function will be passed to COAP_BLOCKING_REQUEST() to
@@ -99,8 +99,8 @@ PROCESS_THREAD(simple_coap_client, ev, data)
 
       /* Send a request to each resource in a round-robin fashion */
       coap_init_message(request, COAP_TYPE_CON, COAP_GET, 0);
-      coap_set_header_uri_path(request, service_urls[uri_switch]);
-      // coap_set_header_proxy_uri(request, "coap://[fe80::203:3:3:3]/.well-known/core");
+      // coap_set_header_uri_path(request, service_urls[uri_switch]);
+      coap_set_header_proxy_uri(request, "coap://[fe80::203:3:3:3]/.well-known/core");
 
       printf("Sending a request: %s\n", service_urls[uri_switch]);
 

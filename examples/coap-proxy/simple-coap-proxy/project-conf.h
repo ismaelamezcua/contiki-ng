@@ -43,4 +43,7 @@
 #define LOG_LEVEL_APP LOG_LEVEL_DBG
 #define LOG_CONF_LEVEL_COAP LOG_LEVEL_DBG
 
+// Allows processing the CoAP proxy uri option in coap.c
+#define COAP_PROXY_OPTION_PROCESSING 1
+
 #endif
