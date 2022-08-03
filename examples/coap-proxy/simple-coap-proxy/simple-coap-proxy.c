@@ -51,7 +51,7 @@
 
 extern coap_resource_t res_hello;
 
-PROCESS(simple_coap_server, "Simple CoAP Proxy");
+PROCESS(simple_coap_proxy, "Simple CoAP Proxy");
 AUTOSTART_PROCESSES(&simple_coap_proxy);
 
 PROCESS_THREAD(simple_coap_proxy, ev, data)
