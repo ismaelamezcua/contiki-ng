@@ -169,6 +169,26 @@ coap_receive(const coap_endpoint_t *src,
     /* handle requests */
     if(message->code >= COAP_GET && message->code <= COAP_DELETE) {
 
+      /* check whether is a forward proxy request */
+      if(message->proxy_uri_len > 0) {
+        transaction = coap_new_transaction(message->mid, src);
+        /*
+         * According to FIGURE 20 in RFC7252, we can issue a response with
+         * code 0 if the request is confirmable until the Proxy-Uri node
+         * sends its response.
+         */
+        if(message->type == COAP_TYPE_CON) {
+          coap_init_message(response, COAP_TYPE_ACK, 0, message->mid);
+        }
+        coap_error_message = "No Error";
+        coap_set_payload(message, coap_error_message, strlen(coap_error_message));
+        coap_sendto(src, payload, coap_serialize_message(message, payload));
+
+        LOG_DBG("This was made by the proxy. We need to make another request and match to the original MID");
+
+        return NO_ERROR;
+      }
+
       /* use transaction buffer for response to confirmable request */
       if((transaction = coap_new_transaction(message->mid, src))) {
         uint32_t block_num = 0;
