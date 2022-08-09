@@ -397,10 +397,17 @@ coap_engine_init(void)
 
   LOG_INFO("Starting CoAP engine...\n");
 
+  /*
+   * No need to store handlers and resources in proxy mode
+   */
+#if COAP_PROXY_OPTION_PROCESSING
+  LOG_INFO("Initializing in proxy mode...\n");
+#else
   list_init(coap_handlers);
   list_init(coap_resource_services);
 
   coap_activate_resource(&res_well_known_core, ".well-known/core");
+#endif /* COAP_PROXY_OPTION_PROCESSING */
 
   coap_transport_init();
   coap_init_connection();
