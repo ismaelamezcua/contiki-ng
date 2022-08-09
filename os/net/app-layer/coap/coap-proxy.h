@@ -31,7 +31,7 @@
 
 /**
  * \file
- *      CoAP proxy implementation.
+ *      CoAP proxy implementation header file.
  * \author
  *      Ismael Amezcua Valdovinos <ismaelamezcua@ucol.mx>
  *      Patricia Elizabeth Figueroa Millan <patricia.figueroa@colima.tecnm.mx>
@@ -44,14 +44,6 @@
 
 #include "coap-engine.h"
 
-/* Log configuration */
-#include "coap-log.h"
-#define LOG_MODULE "coap-eng"
-#define LOG_LEVEL  LOG_LEVEL_COAP
-/*---------------------------------------------------------------------------*/
 int
 coap_proxy_receive(const coap_endpoint_t *src,
-                   uint8_t *payload, uint16_t payload_length)
-{
-  /* TODO: skeleton */
-}
+                   uint8_t *payload, uint16_t payload_length);
