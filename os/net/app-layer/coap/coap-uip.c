@@ -362,7 +362,11 @@ process_data(void)
   LOG_INFO_("]:%u\n", uip_ntohs(UIP_UDP_BUF->srcport));
   LOG_INFO("  Length: %u\n", uip_datalen());
 
+#if COAP_PROXY_OPTION_PROCESSING
+  coap_proxy_receive(get_src_endpoint(0), uip_appdata, uip_datalen());
+#else
   coap_receive(get_src_endpoint(0), uip_appdata, uip_datalen());
+#endif /* COAP_PROXY_OPTION_PROCESSING */
 }
 /*---------------------------------------------------------------------------*/
 int
