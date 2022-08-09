@@ -58,6 +58,7 @@
 #include "coap-constants.h"
 #include "coap-keystore.h"
 #include "coap-keystore-simple.h"
+#include "coap-proxy.h"
 
 /* Log configuration */
 #include "coap-log.h"
