@@ -43,6 +43,7 @@
  */
 
 #include "coap-engine.h"
+#include "coap-transactions.h"
 
 /* Log configuration */
 #include "coap-log.h"
@@ -53,5 +54,40 @@ int
 coap_proxy_receive(const coap_endpoint_t *src,
                    uint8_t *payload, uint16_t payload_length)
 {
-  /* TODO: skeleton */
+  /* static declaration reduces stack peaks and program code size */
+  static coap_message_t message[1]; /* this way the message can be treated as pointer as usual */
+  static coap_message_t response[1];
+
+  coap_status_code = coap_parse_message(message, payload, payload_length);
+  coap_set_src_endpoint(message, src);
+
+  if(coap_status_code == NO_ERROR) {
+
+    LOG_DBG("  COAP-PROXY Parsed: v %u, t %u, tkl %u, c %u, mid %u\n", message->version,
+            message->type, message->token_len, message->code, message->mid);
+    LOG_DBG("  URL:");
+    LOG_DBG_COAP_STRING(message->uri_path, message->uri_path_len);
+    LOG_DBG_("\n");
+    LOG_DBG("  Payload: ");
+    LOG_DBG_COAP_STRING((const char *)message->payload, message->payload_len);
+    LOG_DBG_("\n");
+
+    /*
+      * According to FIGURE 20 in RFC7252, we can issue a response with
+      * code 0 if the request is confirmable until the Proxy-Uri node
+      * sends its response.
+      */
+    if(message->type == COAP_TYPE_CON) {
+      coap_init_message(response, COAP_TYPE_ACK, 0, message->mid);
+    }
+    coap_error_message = "No Error";
+    coap_set_payload(message, coap_error_message, strlen(coap_error_message));
+    coap_sendto(src, payload, coap_serialize_message(message, payload));
+
+    LOG_DBG("This was made by the proxy. We need to make another request and match to the original MID");
+
+    return NO_ERROR;
+  }
+
+  return coap_status_code;
 }
