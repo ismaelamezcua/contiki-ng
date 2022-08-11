@@ -42,13 +42,18 @@
  * @{
  */
 
+#include "coap-proxy.h"
 #include "coap-engine.h"
 #include "coap-transactions.h"
+#include "lib/random.h"
 
 /* Log configuration */
 #include "coap-log.h"
 #define LOG_MODULE "coap-eng"
 #define LOG_LEVEL  LOG_LEVEL_COAP
+
+/* Volatile cache storage */
+coap_proxy_enpoints_t proxy_endpoints;
 /*---------------------------------------------------------------------------*/
 int
 coap_proxy_receive(const coap_endpoint_t *src,
@@ -57,6 +62,8 @@ coap_proxy_receive(const coap_endpoint_t *src,
   /* static declaration reduces stack peaks and program code size */
   static coap_message_t message[1]; /* this way the message can be treated as pointer as usual */
   static coap_message_t response[1];
+  static coap_message_t request[1];
+  coap_transaction_t *transaction = NULL;
 
   coap_status_code = coap_parse_message(message, payload, payload_length);
   coap_set_src_endpoint(message, src);
@@ -73,18 +80,59 @@ coap_proxy_receive(const coap_endpoint_t *src,
     LOG_DBG_("\n");
 
     /*
+     * Check if the packet is "normal" or proxied.
+     * When the proxy_uri_len is present, it means that we need to 
+     * create a new request to the proxy_uri. If not, we MUST assume
+     * the packet is a response from the target proxied node, so we
+     * should gather its payload and create a response to the client.
+     */
+    if(message->proxy_uri_len > 0) {
+      LOG_DBG("We must process the packet.");
+    } else {
+      LOG_DBG("We must process differently this packet.");
+    }
+
+    /*
       * According to FIGURE 20 in RFC7252, we can issue a response with
       * code 0 if the request is confirmable until the Proxy-Uri node
-      * sends its response.
+      * sends its response. However, we MUST ensure the request is BLOCKING
+      * to wait for the response from the target.
       */
-    if(message->type == COAP_TYPE_CON) {
-      coap_init_message(response, COAP_TYPE_ACK, 0, message->mid);
-    }
-    coap_error_message = "No Error";
-    coap_set_payload(message, coap_error_message, strlen(coap_error_message));
-    coap_sendto(src, payload, coap_serialize_message(message, payload));
+    uint16_t mid = random_rand();
+    coap_init_message(request, COAP_TYPE_CON, COAP_GET, mid);
+    coap_set_header_uri_path(request, message->proxy_uri);
 
-    LOG_DBG("This was made by the proxy. We need to make another request and match to the original MID");
+    /* Handle requests */
+    if(message->code >= COAP_GET && message->code <= COAP_DELETE) {
+      if((transaction = coap_new_transaction(message->mid, src))) {
+        /* send response only if message type is CON */
+        if(message->type == COAP_TYPE_CON) {
+          coap_init_message(response, COAP_TYPE_ACK, 0, message->mid);
+        }
+        if(message->token_len) {
+          coap_set_token(response, message->token, message->token_len);
+        }
+
+        /* do not support BLOCK transfers yet */
+        if((transaction->message_len = coap_serialize_message(response, transaction->message)) == 0) {
+          coap_status_code = PACKET_SERIALIZATION_ERROR;
+        }
+        if(transaction) {
+          coap_send_transaction(transaction);
+        }
+      }
+    }
+
+
+    // TODO: Maybe necessary to create a transaction to send an ACK?
+    // if(message->type == COAP_TYPE_CON) {
+    //   coap_init_message(response, COAP_TYPE_ACK, 0, message->mid);
+    // }
+    // coap_error_message = "No Error";
+    // coap_set_payload(message, coap_error_message, strlen(coap_error_message));
+    // coap_sendto(src, payload, coap_serialize_message(message, payload));
+
+    // LOG_DBG("This was made by the proxy. We need to make another request and match to the original MID");
 
     return NO_ERROR;
   }
