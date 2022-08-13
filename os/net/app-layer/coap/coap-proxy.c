@@ -70,13 +70,16 @@ coap_proxy_receive(const coap_endpoint_t *src,
 
   if(coap_status_code == NO_ERROR) {
 
-    LOG_DBG("  COAP-PROXY Parsed: v %u, t %u, tkl %u, c %u, mid %u\n", message->version,
+    LOG_DBG("  CoAP Proxy Parsed: v %u, t %u, tkl %u, c %u, mid %u\n", message->version,
             message->type, message->token_len, message->code, message->mid);
     LOG_DBG("  URL:");
     LOG_DBG_COAP_STRING(message->uri_path, message->uri_path_len);
     LOG_DBG_("\n");
     LOG_DBG("  Payload: ");
     LOG_DBG_COAP_STRING((const char *)message->payload, message->payload_len);
+    LOG_DBG_("\n");
+    LOG_DBG_(  "Client is asking for: ");
+    LOG_DBG_COAP_STRING(message->proxy_uri, message->proxy_uri_len);
     LOG_DBG_("\n");
 
     /*
@@ -86,11 +89,21 @@ coap_proxy_receive(const coap_endpoint_t *src,
      * the packet is a response from the target proxied node, so we
      * should gather its payload and create a response to the client.
      */
-    if(message->proxy_uri_len > 0) {
-      LOG_DBG("We must process the packet.");
-    } else {
-      LOG_DBG("We must process differently this packet.");
-    }
+    // if(message->proxy_uri_len > 0) {
+    //   /* Create a new transaction with the target server */
+    //   // static coap_endpoint_t target_server;
+    //   // uint16_t new_mid = coap_get_mid();
+
+    //   // coap_endpoint_parse(message->proxy_uri, message->proxy_uri_len, &target_server);
+    //   // transaction = coap_new_transaction(new_mid, &target_server);
+    //   coap_init_message(request, COAP_TYPE_CON, COAP_GET, 0);
+    //   coap_set_header_uri_path(request, message->proxy_uri);
+
+    //   return 0;
+    // } else {
+    //   LOG_DBG("We must process differently this packet.");
+    //   return 0;
+    // }
 
     /*
       * According to FIGURE 20 in RFC7252, we can issue a response with
@@ -98,12 +111,31 @@ coap_proxy_receive(const coap_endpoint_t *src,
       * sends its response. However, we MUST ensure the request is BLOCKING
       * to wait for the response from the target.
       */
-    uint16_t mid = random_rand();
-    coap_init_message(request, COAP_TYPE_CON, COAP_GET, mid);
-    coap_set_header_uri_path(request, message->proxy_uri);
-
     /* Handle requests */
     if(message->code >= COAP_GET && message->code <= COAP_DELETE) {
+      static coap_endpoint_t target_server_endpoint;
+      static coap_message_t target_request[1];
+      coap_transaction_t *target_transaction = NULL;
+
+      if((coap_endpoint_parse(message->proxy_uri, message->proxy_uri_len, &target_server_endpoint))) {
+        // LOG_DBG_COAP_EP(&target_server_endpoint);
+        LOG_DBG("Printing Endpoint: ");
+        coap_endpoint_print(&target_server_endpoint);
+        target_transaction = coap_new_transaction(message->mid, &target_server_endpoint);
+        coap_init_message(target_request, COAP_GET, 0, coap_get_mid());
+        coap_set_token(target_request, message->token, message->token_len);
+        coap_set_header_uri_path(target_request, "/sensors/humidity");
+        target_transaction->message_len = coap_serialize_message(target_request, target_transaction->message);
+        coap_send_transaction(target_transaction);
+        LOG_DBG("Transaction sent!");
+        return 1;
+      }
+
+      uint16_t mid = random_rand();
+      coap_init_message(request, COAP_TYPE_CON, COAP_GET, mid);
+      coap_set_header_uri_path(request, message->proxy_uri);
+
+
       if((transaction = coap_new_transaction(message->mid, src))) {
         /* send response only if message type is CON */
         if(message->type == COAP_TYPE_CON) {
@@ -118,9 +150,15 @@ coap_proxy_receive(const coap_endpoint_t *src,
           coap_status_code = PACKET_SERIALIZATION_ERROR;
         }
         if(transaction) {
+          coap_set_payload(response, "hola", strlen("hola"));
           coap_send_transaction(transaction);
         }
       }
+    } else {
+      if((transaction = coap_get_transaction_by_mid(message->mid))) {
+        coap_clear_transaction(transaction);
+      }
+      LOG_DBG("transaction cleared");
     }
 
 
