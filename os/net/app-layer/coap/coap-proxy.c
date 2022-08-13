@@ -55,6 +55,23 @@
 /* Volatile cache storage */
 coap_proxy_enpoints_t proxy_endpoints;
 /*---------------------------------------------------------------------------*/
+uint8_t *
+client_chunk_handler(coap_message_t *response)
+{
+  const uint8_t *chunk;
+
+  if(response == NULL) {
+    puts("Request timed out");
+    return;
+  }
+
+  int length = coap_get_payload(response, &chunk);
+
+  printf("|%.*s", length, (char *)chunk);
+
+  return chunk;
+}
+/*---------------------------------------------------------------------------*/
 int
 coap_proxy_receive(const coap_endpoint_t *src,
                    uint8_t *payload, uint16_t payload_length)
@@ -88,22 +105,31 @@ coap_proxy_receive(const coap_endpoint_t *src,
      * create a new request to the proxy_uri. If not, we MUST assume
      * the packet is a response from the target proxied node, so we
      * should gather its payload and create a response to the client.
+     * We also have to differentiate between requests and repsonses
+     * by analizying the message type and code === 0.
      */
-    // if(message->proxy_uri_len > 0) {
-    //   /* Create a new transaction with the target server */
-    //   // static coap_endpoint_t target_server;
-    //   // uint16_t new_mid = coap_get_mid();
+    if(message->code >= COAP_GET && message->code <= COAP_DELETE) {
+      /* Handle proxy requests */
+      static coap_message_t proxy_request[1];
 
-    //   // coap_endpoint_parse(message->proxy_uri, message->proxy_uri_len, &target_server);
-    //   // transaction = coap_new_transaction(new_mid, &target_server);
-    //   coap_init_message(request, COAP_TYPE_CON, COAP_GET, 0);
-    //   coap_set_header_uri_path(request, message->proxy_uri);
+      coap_init_message(proxy_request, COAP_TYPE_CON, COAP_GET, 0);
+      coap_set_header_uri_path(proxy_request, message->proxy_uri);
 
-    //   return 0;
-    // } else {
-    //   LOG_DBG("We must process differently this packet.");
-    //   return 0;
-    // }
+      LOG_DBG("CoAP Proxy: Sent a request to target client ");
+      LOG_DBG_COAP_STRING(message->proxy_uri, message->proxy_uri_len);
+      LOG_DBG_("\n");
+    } else {
+      /* Handle proxy responses */
+      LOG_DBG("Receive a response to the proxy: ");
+    }
+
+    if(message->proxy_uri_len > 0) {
+      uint16_t mid = random_rand();
+      coap_init_message(request, COAP_TYPE_CON, COAP_GET, mid);
+      coap_set_header_uri_path(request, message->proxy_uri);
+    } else {
+      LOG_DBG("We must process differently this packet.");
+    }
 
     /*
       * According to FIGURE 20 in RFC7252, we can issue a response with
