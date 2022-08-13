@@ -52,25 +52,6 @@
 #define LOG_MODULE "coap-eng"
 #define LOG_LEVEL  LOG_LEVEL_COAP
 
-/* Volatile cache storage */
-coap_proxy_enpoints_t proxy_endpoints;
-/*---------------------------------------------------------------------------*/
-uint8_t *
-client_chunk_handler(coap_message_t *response)
-{
-  const uint8_t *chunk;
-
-  if(response == NULL) {
-    puts("Request timed out");
-    return;
-  }
-
-  int length = coap_get_payload(response, &chunk);
-
-  printf("|%.*s", length, (char *)chunk);
-
-  return chunk;
-}
 /*---------------------------------------------------------------------------*/
 int
 coap_proxy_receive(const coap_endpoint_t *src,
@@ -108,28 +89,6 @@ coap_proxy_receive(const coap_endpoint_t *src,
      * We also have to differentiate between requests and repsonses
      * by analizying the message type and code === 0.
      */
-    if(message->code >= COAP_GET && message->code <= COAP_DELETE) {
-      /* Handle proxy requests */
-      static coap_message_t proxy_request[1];
-
-      coap_init_message(proxy_request, COAP_TYPE_CON, COAP_GET, 0);
-      coap_set_header_uri_path(proxy_request, message->proxy_uri);
-
-      LOG_DBG("CoAP Proxy: Sent a request to target client ");
-      LOG_DBG_COAP_STRING(message->proxy_uri, message->proxy_uri_len);
-      LOG_DBG_("\n");
-    } else {
-      /* Handle proxy responses */
-      LOG_DBG("Receive a response to the proxy: ");
-    }
-
-    if(message->proxy_uri_len > 0) {
-      uint16_t mid = random_rand();
-      coap_init_message(request, COAP_TYPE_CON, COAP_GET, mid);
-      coap_set_header_uri_path(request, message->proxy_uri);
-    } else {
-      LOG_DBG("We must process differently this packet.");
-    }
 
     /*
       * According to FIGURE 20 in RFC7252, we can issue a response with
