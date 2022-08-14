@@ -75,26 +75,9 @@ coap_proxy_receive(const coap_endpoint_t *src,
     LOG_DBG("  Payload: ");
     LOG_DBG_COAP_STRING((const char *)message->payload, message->payload_len);
     LOG_DBG_("\n");
-    LOG_DBG_("Client wants to reach: ");
+    LOG_DBG_("  Client wants to reach: ");
     LOG_DBG_COAP_STRING(message->proxy_uri, message->proxy_uri_len);
     LOG_DBG_("\n");
-
-    /*
-     * Check if the packet is "normal" or proxied.
-     * When the proxy_uri_len is present, it means that we need to
-     * create a new request to the proxy_uri. If not, we MUST assume
-     * the packet is a response from the target proxied node, so we
-     * should gather its payload and create a response to the client.
-     * We also have to differentiate between requests and repsonses
-     * by analizying the message type and code === 0.
-     */
-
-    /*
-     * According to FIGURE 20 in RFC7252, we can issue a response with
-     * code 0 if the request is confirmable until the Proxy-Uri node
-     * sends its response. However, we MUST ensure the request is BLOCKING
-     * to wait for the response from the target.
-     */
 
     /* Handle requests */
     if(message->code >= COAP_GET && message->code <= COAP_DELETE) {
@@ -103,7 +86,6 @@ coap_proxy_receive(const coap_endpoint_t *src,
       coap_transaction_t *target_transaction = NULL;
 
       if((coap_endpoint_parse(message->proxy_uri, message->proxy_uri_len, &target_server))) {
-
         /*
          * If the proxy-uri node is not reachable, send 5.03 Service Unavailable.
          * Unfortunately, the function to checkif reachable does not work
@@ -137,71 +119,48 @@ coap_proxy_receive(const coap_endpoint_t *src,
         char *locate_bracket = strchr(message->proxy_uri, ']');
         char *request_path = locate_bracket + 1;
 
-        target_transaction = coap_new_transaction(message->mid, &target_server);
-        coap_init_message(target_request, COAP_TYPE_CON, COAP_GET, coap_get_mid());
+        uint16_t new_mid = coap_get_mid();
+        target_transaction = coap_new_transaction(new_mid, &target_server);
+        coap_set_src_endpoint(target_request, &target_server);
+        coap_init_message(target_request, COAP_TYPE_CON, COAP_GET, new_mid);
         coap_set_token(target_request, message->token, message->token_len);
         coap_set_header_uri_path(target_request, request_path);
         target_transaction->message_len = coap_serialize_message(target_request, target_transaction->message);
         coap_send_transaction(target_transaction);
-        LOG_DBG("Transaction sent!");
-      }
-
-      /*
-       * For now, use the implementation of coap_receive from coap-engine.c
-       * to send a response to the client with dummy data
-       */
-      if((transaction = coap_new_transaction(message->mid, src))) {
-        /*
-         * Reliable CON request are answered with an ACK
-         * Unreliable NON requesta are answered with a NON as well
-         */
-        if(message->type == COAP_TYPE_CON) {
-          coap_init_message(response, COAP_TYPE_ACK, CONTENT_2_05, message->mid);
-        } else {
-          coap_init_message(response, COAP_TYPE_NON, CONTENT_2_05, coap_get_mid());
-        }
-
-        /* Mirror token */
-        if(message->token_len) {
-          coap_set_token(response, message->token, message->token_len);
-        }
-
-        /* We don't want to support blockwise transfers just yet */
-        /* Simulate a CoAP Resource to send it to the client */
-        char *buffer = "{\"hello\":\"world\"}";
-        coap_set_header_content_format(response, APPLICATION_JSON);
-        coap_set_payload(response, (uint8_t *)buffer, strlen((char *)buffer));
-        if((transaction->message_len = coap_serialize_message(response, transaction->message)) == 0) {
-          coap_status_code = PACKET_SERIALIZATION_ERROR;
-        }
-
-        if(coap_status_code == NO_ERROR) {
-          if(transaction) {
-            coap_send_transaction(transaction);
-          }
-        }
-
-        /* LOG_DBG("================= WE Being creating the tranaction"); */
-        /* / * Create a new endpoint * / */
-        /* static coap_endpoint_t target_server; */
-        /* static coap_message_t target_request[1]; */
-
-        /* coap_endpoint_parse(message->proxy_uri, message->proxy_uri_len, &target_server); */
-        /* LOG_DBG("Printing Endpoint: "); */
-        /* coap_endpoint_print(&target_server); */
-
-        /* static coap_transaction_t *target_transaction = NULL; */
-        /* if((target_transaction = coap_new_transaction(coap_get_mid(), &target_server))) { */
-        /*   coap_init_message(target_request, COAP_TYPE_CON, COAP_GET, 0); */
-        /*   coap_set_header_uri_path(target_request, ".well-known/core"); */
-        /*   if((transaction->message_len = coap_serialize_message(target_request, transaction->message)) == 0) { */
-        /*     coap_status_code = PACKET_SERIALIZATION_ERROR; */
-        /*   } */
-        /*   coap_send_transaction(target_transaction); */
-        /* } */
-        /* LOG_DBG("=================== TRABNSACTION JUST ENDED"); */
       } else {
         /* Handle responses */
+        if((transaction = coap_new_transaction(message->mid, src))) {
+          /*
+          * Reliable CON request are answered with an ACK
+          * Unreliable NON requesta are answered with a NON as well
+          */
+          if(message->type == COAP_TYPE_CON) {
+            coap_init_message(response, COAP_TYPE_ACK, CONTENT_2_05, message->mid);
+          } else {
+            coap_init_message(response, COAP_TYPE_NON, CONTENT_2_05, coap_get_mid());
+          }
+
+          /* Mirror token */
+          if(message->token_len) {
+            coap_set_token(response, message->token, message->token_len);
+          }
+
+          /* We don't want to support blockwise transfers just yet */
+          /* Simulate a CoAP Resource to send it to the client */
+          // char *buffer = "{\"hello\":\"world\"}";
+          coap_set_header_content_format(response, APPLICATION_JSON);
+          // coap_set_payload(response, (uint8_t *)buffer, strlen((char *)buffer));
+          coap_set_payload(response, payload, payload_length);
+           if((transaction->message_len = coap_serialize_message(response, transaction->message)) == 0) {
+            coap_status_code = PACKET_SERIALIZATION_ERROR;
+          }
+
+          if(coap_status_code == NO_ERROR) {
+            if(transaction) {
+              coap_send_transaction(transaction);
+            }
+          }
+
         if(message->type == COAP_TYPE_CON && message->code == 0) {
           LOG_INFO("Received Ping\n");
           coap_status_code = PING_RESPONSE;
@@ -241,63 +200,7 @@ coap_proxy_receive(const coap_endpoint_t *src,
 
       return coap_status_code;
 
-      /* static coap_endpoint_t target_server_endpoint; */
-      /* static coap_message_t target_request[1]; */
-      /* coap_transaction_t *target_transaction = NULL; */
-
-      /*   if((coap_endpoint_parse(message->proxy_uri, message->proxy_uri_len, &target_server_endpoint))) { */
-      /*     // LOG_DBG_COAP_EP(&target_server_endpoint); */
-      /*     LOG_DBG("Printing Endpoint: "); */
-      /*     coap_endpoint_print(&target_server_endpoint); */
-      /*     target_transaction = coap_new_transaction(message->mid, &target_server_endpoint); */
-      /*     coap_init_message(target_request, COAP_GET, 0, coap_get_mid()); */
-      /*     coap_set_token(target_request, message->token, message->token_len); */
-      /*     coap_set_header_uri_path(target_request, "/sensors/humidity"); */
-      /*     target_transaction->message_len = coap_serialize_message(target_request, target_transaction->message); */
-      /*     coap_send_transaction(target_transaction); */
-      /*     LOG_DBG("Transaction sent!"); */
-      /*     return 1; */
-      /*   } */
-
-      /*   uint16_t mid = random_rand(); */
-      /*   coap_init_message(request, COAP_TYPE_CON, COAP_GET, mid); */
-      /*   coap_set_header_uri_path(request, message->proxy_uri); */
-
-      /*   if((transaction = coap_new_transaction(message->mid, src))) { */
-      /*     / * send response only if message type is CON * / */
-      /*     if(message->type == COAP_TYPE_CON) { */
-      /*       coap_init_message(response, COAP_TYPE_ACK, 0, message->mid); */
-      /*     } */
-      /*     if(message->token_len) { */
-      /*       coap_set_token(response, message->token, message->token_len); */
-      /*     } */
-
-      /*     / * do not support BLOCK transfers yet * / */
-      /*     if((transaction->message_len = coap_serialize_message(response, transaction->message)) == 0) { */
-      /*       coap_status_code = PACKET_SERIALIZATION_ERROR; */
-      /*     } */
-      /*     if(transaction) { */
-      /*       coap_set_payload(response, "hola", strlen("hola")); */
-      /*       coap_send_transaction(transaction); */
-      /*     } */
-      /*   } */
-      /* } else { */
-      /*   if((transaction = coap_get_transaction_by_mid(message->mid))) { */
-      /*     coap_clear_transaction(transaction); */
-      /*   } */
-      /*   LOG_DBG("transaction cleared"); */
-      /* } */
-
-      /* TODO: Maybe necessary to create a transaction to send an ACK? */
-      /* if(message->type == COAP_TYPE_CON) { */
-      /*   coap_init_message(response, COAP_TYPE_ACK, 0, message->mid); */
-      /* } */
-      /* coap_error_message = "No Error"; */
-      /* coap_set_payload(message, coap_error_message, strlen(coap_error_message)); */
-      /* coap_sendto(src, payload, coap_serialize_message(message, payload)); */
-
-      /* LOG_DBG("This was made by the proxy. We need to make another request and match to the original MID"); */
-    }
+    }}
 
     return NO_ERROR;
   }
