@@ -100,7 +100,7 @@ PROCESS_THREAD(simple_coap_client, ev, data)
       /* Send a request to each resource in a round-robin fashion */
       coap_init_message(request, COAP_TYPE_CON, COAP_GET, 0);
       // coap_set_header_uri_path(request, service_urls[uri_switch]);
-      coap_set_header_proxy_uri(request, "coap://[fe80::203:3:3:3]/.well-known/core");
+      coap_set_header_proxy_uri(request, "coap://[fe80::204:4:4:4]/.well-known/core");
 
       printf("Sending a request: %s\n", service_urls[uri_switch]);
 
