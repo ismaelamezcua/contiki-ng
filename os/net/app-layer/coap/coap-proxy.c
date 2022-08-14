@@ -104,34 +104,43 @@ coap_proxy_receive(const coap_endpoint_t *src,
 
       if((coap_endpoint_parse(message->proxy_uri, message->proxy_uri_len, &target_server))) {
 
-        /* If the proxy-uri node is not reachable, send 5.03 Service Unavailable */
-        if((coap_endpoint_is_connected(&target_server)) == 0) {
-          if((transaction = coap_new_transaction(message->mid, src))) {
-            if(message->type == COAP_TYPE_CON) {
-              coap_init_message(response, COAP_TYPE_ACK, SERVICE_UNAVAILABLE_5_03, message->mid);
-            } else {
-              coap_init_message(response, COAP_TYPE_NON, SERVICE_UNAVAILABLE_5_03, coap_get_mid());
-            }
-          }
+        /*
+         * If the proxy-uri node is not reachable, send 5.03 Service Unavailable.
+         * Unfortunately, the function to checkif reachable does not work
+         * since it will return true even if the endpoint does not exist.
+         * The routing will be commented and scoped in case is needed in the future.
+         */
+        // {
+        //   if((coap_endpoint_is_connected(&target_server)) == 0) {
+        //     LOG_DBG("  CoAP Proxy: The target endpoint is not reachable.\n");
+        //     if((transaction = coap_new_transaction(message->mid, src))) {
+        //       if(message->type == COAP_TYPE_CON) {
+        //         coap_init_message(response, COAP_TYPE_ACK, SERVICE_UNAVAILABLE_5_03, message->mid);
+        //       } else {
+        //         coap_init_message(response, COAP_TYPE_NON, SERVICE_UNAVAILABLE_5_03, coap_get_mid());
+        //       }
+        //     }
 
-          /* Mirror token */
-          if(message->token_len) {
-            coap_set_token(response, message->token, message->token_len);
-          }
+        //     /* Mirror token */
+        //     if(message->token_len) {
+        //       coap_set_token(response, message->token, message->token_len);
+        //     }
 
-          coap_status_code = SERVICE_UNAVAILABLE_5_03;
-          coap_send_transaction(transaction);
+        //     coap_status_code = SERVICE_UNAVAILABLE_5_03;
+        //     coap_send_transaction(transaction);
 
-          return coap_status_code;
-        } else {
-          /* Proxy-uri node is reachable, create a new transaction */
-          return 0;
-        }
+        //     return coap_status_code;
+        //   }
+        // }
+
+        /* Extract Uri-Path from the Proxy-Uri option */
+        char *locate_bracket = strchr(message->proxy_uri, ']');
+        char *request_path = locate_bracket + 1;
 
         target_transaction = coap_new_transaction(message->mid, &target_server);
         coap_init_message(target_request, COAP_TYPE_CON, COAP_GET, coap_get_mid());
         coap_set_token(target_request, message->token, message->token_len);
-        coap_set_header_uri_path(target_request, "/sensors/humidity");
+        coap_set_header_uri_path(target_request, request_path);
         target_transaction->message_len = coap_serialize_message(target_request, target_transaction->message);
         coap_send_transaction(target_transaction);
         LOG_DBG("Transaction sent!");
