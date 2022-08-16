@@ -53,8 +53,8 @@
 #define LOG_MODULE "coap-proxy"
 #define LOG_LEVEL  LOG_LEVEL_COAP
 
-char source_address[40];
-static char source_token[COAP_TOKEN_LEN];
+char source_address[128];
+uint16_t source_mid = 0;
 
 /*---------------------------------------------------------------------------*/
 int
@@ -123,14 +123,12 @@ coap_proxy_receive(const coap_endpoint_t *src,
          * We need to parse the ipaddr from the CoAP endpoint to store it as string
          * only when the Proxy-Uri option is present.
          * Avoid the use of coap_endpoint_copy() since it throws segmentation faults.
-         * Also, store message token for replying.
+         * Also, store message MID for replying and freeing the transaction.
          */
         if(message->proxy_uri_len > 0) {
           uiplib_ipaddr_snprint(source_address, sizeof(source_address), &src->ipaddr);
         }
-        if(message->token_len) {
-          source_token = message->token;
-        }
+        source_mid = message->mid;
 
         /* Extract Uri-Path from the Proxy-Uri option */
         char *locate_bracket = strchr(message->proxy_uri, ']');
@@ -156,28 +154,33 @@ coap_proxy_receive(const coap_endpoint_t *src,
        */
 
       /* Transaction to send the payload to the source client */
-      coap_transaction_t *source_transaction = NULL;
-      coap_transaction_t *target_transaction = NULL;
-      static coap_message_t source_message[1];
-      int content_format;
+      // coap_transaction_t *source_transaction = NULL;
+      // // coap_transaction_t *target_transaction = NULL;
+      // coap_endpoint_t *source_endpoint = NULL;
+      // static coap_message_t source_message[1];
 
-      if((source_transaction = coap_new_transaction(coap_get_mid(), source_transaction))) {
-        coap_init_message(source_message, COAP_TYPE_CON, CONTENT_2_05, 0);
-        if(coap_get_header_content_format(message->content_format, &content_format)) {
-          coap_set_header_content_format(source_message, content_format);
-          coap_set_token(source_message, source_token, COAP_TOKEN_LEN);
-          coap_set_payload(source_message, payload, payload_length);
-        if((transaction->message_len = coap_serialize_message(response, transaction->message)) == 0) {
-          coap_status_code = PACKET_SERIALIZATION_ERROR;
-        }
+      // coap_endpoint_parse(source_address, strlen(source_address), source_endpoint);
+      // coap_endpoint_print(source_endpoint);
 
-        if(coap_status_code == NO_ERROR) {
-          if(transaction) {
-            coap_send_transaction(transaction);
-          }
-        }
-        }
-      }
+      // if((source_transaction = coap_get_transaction_by_mid(source_mid))) {
+      // // if((source_transaction = coap_new_transaction(coap_get_mid(), source_endpoint))) {
+      //   coap_init_message(source_message, COAP_TYPE_CON, CONTENT_2_05, 0);
+      //   // if(coap_get_header_content_format(message->content_format, content_format)) {
+      //   //     coap_set_header_content_format(source_message, content_format);
+      //   // }
+      //   // coap_set_token(source_message, source_token, COAP_TOKEN_LEN);
+      //   coap_set_payload(source_message, payload, payload_length);
+      //   if((source_transaction->message_len = coap_serialize_message(response, transaction->message)) == 0) {
+      //     coap_status_code = PACKET_SERIALIZATION_ERROR;
+      //   }
+
+      //   if(coap_status_code == NO_ERROR) {
+      //     if(source_transaction) {
+      //       coap_send_transaction(source_transaction);
+      //       coap_clear_transaction(source_transaction);
+      //     }
+      //   }
+      // }
 
       if((transaction = coap_new_transaction(message->mid, src))) {
         /*
