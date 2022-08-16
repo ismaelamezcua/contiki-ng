@@ -156,11 +156,11 @@ coap_proxy_receive(const coap_endpoint_t *src,
       /* Transaction to send the payload to the source client */
       // coap_transaction_t *source_transaction = NULL;
       // // coap_transaction_t *target_transaction = NULL;
-      // coap_endpoint_t *source_endpoint = NULL;
+      coap_endpoint_t source_endpoint;
       // static coap_message_t source_message[1];
 
-      // coap_endpoint_parse(source_address, strlen(source_address), source_endpoint);
-      // coap_endpoint_print(source_endpoint);
+      coap_endpoint_parse(source_address, strlen(source_address), &source_endpoint);
+      coap_endpoint_print(&source_endpoint);
 
       // if((source_transaction = coap_get_transaction_by_mid(source_mid))) {
       // // if((source_transaction = coap_new_transaction(coap_get_mid(), source_endpoint))) {
