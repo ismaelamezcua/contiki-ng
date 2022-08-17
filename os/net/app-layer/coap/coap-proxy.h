@@ -44,13 +44,6 @@
 
 #include "coap-engine.h"
 
-typedef struct {
-  uint8_t client_token;
-  uint8_t target_token;
-  coap_endpoint_t client_endpoint;
-  coap_endpoint_t target_endpoint;
-} coap_proxy_enpoints_t;
-
 int
 coap_proxy_receive(const coap_endpoint_t *src,
                    uint8_t *payload, uint16_t payload_length);
