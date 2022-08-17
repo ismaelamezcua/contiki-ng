@@ -168,4 +168,13 @@ coap_get_transaction_by_mid(uint16_t mid)
   return NULL;
 }
 /*---------------------------------------------------------------------------*/
+void
+coap_print_transactions(void)
+{
+  coap_transaction_t *t = NULL;
+
+  for(t = (coap_transaction_t *)list_head(transactions_list); t; t = t->next) {
+    LOG_DBG("Transaction MID %u: %p\n", t->mid, t);
+  }
+}
 /** @} */
