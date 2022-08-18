@@ -60,6 +60,12 @@ uint16_t source_mid;
 /*- Temporal functions ------------------------------------------------------*/
 /*---------------------------------------------------------------------------*/
 void
+logger(char *message)
+{
+  LOG_DBG_COAP_STRING(message, strlen(message));
+  LOG_DBG_("\n");
+}
+void
 print_active_transactions(void)
 {
   LOG_DBG("  Printing transactions in the list:\n");
@@ -73,9 +79,8 @@ print_active_transactions(void)
 void
 handle_proxy_request(coap_message_t message[], const coap_endpoint_t *endpoint)
 {
-  coap_transaction_t *transaction = NULL;
+  // coap_transaction_t *transaction = NULL;
   coap_transaction_t *target_transaction = NULL;
-  static coap_message_t response[1];
   static coap_message_t request[1];
   coap_endpoint_t target_endpoint;
 
@@ -120,27 +125,6 @@ handle_proxy_request(coap_message_t message[], const coap_endpoint_t *endpoint)
     }
   }
 
-  /* Sending a response to the source */
-  if((transaction = coap_new_transaction(message->mid, endpoint))) {
-    message->type == COAP_TYPE_CON
-      ? coap_init_message(response, COAP_TYPE_ACK, CONTENT_2_05, message->mid)
-      : coap_init_message(response, COAP_TYPE_NON, CONTENT_2_05, coap_get_mid());
-
-    if(message->token_len) {
-      coap_set_token(response, message->token, message->token_len);
-    }
-
-    /* Simulate a CoAP Resource response */
-    char *buffer = "{\"hello\":\"world\"}";
-    coap_set_header_content_format(response, APPLICATION_JSON);
-    coap_set_payload(response, (uint8_t *)buffer, strlen((char *)buffer));
-
-    if((transaction->message_len = coap_serialize_message(response, transaction->message)) == 0) {
-      coap_status_code = PACKET_SERIALIZATION_ERROR;
-    }
-
-    coap_send_transaction(transaction);
-  }
 
   return;
 }
@@ -148,8 +132,43 @@ void
 handle_proxy_response(coap_message_t message[], const coap_endpoint_t *endpoint)
 {
   coap_transaction_t *transaction = NULL;
+  coap_transaction_t *source_transaction = NULL;
+  coap_endpoint_t source_endpoint;
+  coap_message_t source_response[1];
+  // coap_message_t response[1];
 
   LOG_DBG("  Handling a response with mid %u.\n", message->mid);
+
+  /* Send the response back to the source node */
+  if((coap_endpoint_parse(source_address, strlen(source_address), &source_endpoint)) == 0) {
+    LOG_DBG("  Error: Could not create endpoint for ");
+    LOG_DBG_COAP_STRING(source_address, strlen(source_address));
+    LOG_DBG_("\n");
+    coap_status_code = ERROR_RESPONSE_CODE;
+
+    return;
+  }
+
+  coap_set_src_endpoint(source_response, &source_endpoint);
+
+  if((source_transaction = coap_new_transaction(message->mid, &source_endpoint))) {
+    message->type == COAP_TYPE_CON
+      ? coap_init_message(source_response, COAP_TYPE_ACK, CONTENT_2_05, source_mid)
+      : coap_init_message(source_response, COAP_TYPE_NON, CONTENT_2_05, coap_get_mid());
+
+    if(message->token_len) {
+      coap_set_token(source_response, message->token, message->token_len);
+    }
+
+    coap_set_header_content_format(source_response, APPLICATION_JSON);
+    coap_set_payload(source_response, message->payload, message->payload_len);
+
+    if((source_transaction->message_len = coap_serialize_message(source_response, source_transaction->message)) == 0) {
+      coap_status_code = PACKET_SERIALIZATION_ERROR;
+    }
+
+    coap_send_transaction(source_transaction);
+  }
 
   if(message->type == COAP_TYPE_CON && message->code == 0) {
     LOG_INFO("Received a Ping.\n");
