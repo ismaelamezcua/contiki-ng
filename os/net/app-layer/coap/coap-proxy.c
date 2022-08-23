@@ -72,14 +72,13 @@ print_active_transactions(void)
   coap_print_transactions();
   LOG_DBG_("\n");
 }
-
 /*---------------------------------------------------------------------------*/
 /*- Internal Proxy Engine ---------------------------------------------------*/
 /*---------------------------------------------------------------------------*/
 void
 handle_proxy_request(coap_message_t message[], const coap_endpoint_t *endpoint)
 {
-  // coap_transaction_t *transaction = NULL;
+  /* coap_transaction_t *transaction = NULL; */
   coap_transaction_t *target_transaction = NULL;
   static coap_message_t request[1];
   coap_endpoint_t target_endpoint;
@@ -90,7 +89,7 @@ handle_proxy_request(coap_message_t message[], const coap_endpoint_t *endpoint)
   if(message->proxy_uri_len) {
     /* Extract the IP address from Proxy-Uri */
     uiplib_ipaddr_snprint(source_address, sizeof(source_address), &endpoint->ipaddr);
-    source_mid = message->mid;   
+    source_mid = message->mid;
 
     /* Extract Uri-Path from the Proxy-Uri option */
     char *locate_bracket = strchr(message->proxy_uri, ']');
@@ -124,6 +123,10 @@ handle_proxy_request(coap_message_t message[], const coap_endpoint_t *endpoint)
     }
   }
 
+  /* Check for transactions */
+  logger("\n=================== Active transactions:\n");
+  print_active_transactions();
+
   return;
 }
 void
@@ -133,7 +136,7 @@ handle_proxy_response(coap_message_t message[], const coap_endpoint_t *endpoint)
   coap_transaction_t *source_transaction = NULL;
   coap_endpoint_t source_endpoint;
   coap_message_t source_response[1];
-  // coap_message_t response[1];
+  /* coap_message_t response[1]; */
 
   LOG_DBG("  Handling a response with mid %u.\n", message->mid);
 
@@ -192,7 +195,7 @@ handle_proxy_response(coap_message_t message[], const coap_endpoint_t *endpoint)
       callback(callback_data, message);
     }
   }
- 
+
   coap_status_code = NO_ERROR;
 
   return;
