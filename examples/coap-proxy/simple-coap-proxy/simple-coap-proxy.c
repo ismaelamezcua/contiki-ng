@@ -49,8 +49,6 @@
 #define LOG_MODULE "Simple CoAP Proxy"
 #define LOG_LEVEL LOG_LEVEL_APP
 
-extern coap_resource_t res_hello;
-
 PROCESS(simple_coap_proxy, "Simple CoAP Proxy");
 AUTOSTART_PROCESSES(&simple_coap_proxy);
 
@@ -60,11 +58,6 @@ PROCESS_THREAD(simple_coap_proxy, ev, data)
   PROCESS_PAUSE();
 
   LOG_INFO("Simple CoAP proxy for Node %d has started.\n", node_id);
-
-  /*
-   * Bind the resources to their Uri-Path.
-   */
-  coap_activate_resource(&res_hello, "hello");
 
   while(1) {
     PROCESS_WAIT_EVENT();
