@@ -99,6 +99,7 @@ handle_proxy_request(coap_message_t message[], const coap_endpoint_t *endpoint)
     LOG_DBG("  source address: %s  source MID: %u\n", source_address, source_mid);
     LOG_DBG("  Request-Path: %s\n", request_path);
 
+    /* Creates a new endpoint for the proxy and the target */
     if((coap_endpoint_parse(message->proxy_uri, message->proxy_uri_len, &target_endpoint)) == 0) {
       LOG_DBG("  Error: Could not create endpoint for ");
       LOG_DBG_COAP_STRING(message->proxy_uri, message->proxy_uri_len);
@@ -108,13 +109,11 @@ handle_proxy_request(coap_message_t message[], const coap_endpoint_t *endpoint)
       return;
     }
 
-    if((target_transaction = coap_new_transaction(message->mid, &target_endpoint))) {
-      message->type == COAP_TYPE_CON
-        ? coap_init_message(request, COAP_TYPE_CON, COAP_GET, message->mid)
-        : coap_init_message(request, COAP_TYPE_NON, COAP_GET, coap_get_mid());
-
+    /* Sends a COAP GET request to the target server */
+    uint16_t new_mid = coap_get_mid();
+    if((target_transaction = coap_new_transaction(new_mid, &target_endpoint))) {
+      coap_init_message(request, message->type, COAP_GET, new_mid);
       coap_set_header_uri_path(request, request_path);
-
       if((target_transaction->message_len = coap_serialize_message(request, target_transaction->message)) == 0) {
         coap_status_code = PACKET_SERIALIZATION_ERROR;
 
@@ -124,7 +123,6 @@ handle_proxy_request(coap_message_t message[], const coap_endpoint_t *endpoint)
       coap_send_transaction(target_transaction);
     }
   }
-
 
   return;
 }
@@ -182,7 +180,6 @@ handle_proxy_response(coap_message_t message[], const coap_endpoint_t *endpoint)
     coap_remove_observer_by_mid(endpoint, message->mid);
   }
 
-  print_active_transactions();
   if((transaction = coap_get_transaction_by_mid(message->mid))) {
     /* Free transaction memory before Callback, as it may create a new Transaction */
     coap_resource_response_handler_t callback = transaction->callback;
@@ -195,7 +192,6 @@ handle_proxy_response(coap_message_t message[], const coap_endpoint_t *endpoint)
       callback(callback_data, message);
     }
   }
-  print_active_transactions();
  
   coap_status_code = NO_ERROR;
 
