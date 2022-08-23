@@ -48,18 +48,13 @@ static void res_get_handler(coap_message_t *request,
                             uint16_t preferred_size,
                             int32_t *offset);
 
-static void
-res_periodic_handler(void);
-
-PERIODIC_RESOURCE(
+RESOURCE(
   res_temperature,
-  "title=\"Temperature Sensor\";rt=\"temperature\";obs",
+  "title=\"Temperature sensor\";rt=\"Temperature\"",
   res_get_handler,
   NULL,
   NULL,
-  NULL,
-  5000,
-  res_periodic_handler
+  NULL
   );
 
 static void
@@ -81,9 +76,4 @@ res_get_handler(coap_message_t *request,
     const char *message = "Only application/json as Content-Type is supported.";
     coap_set_payload(response, message, strlen(message));
   }
-}
-static void
-res_periodic_handler()
-{
-  coap_notify_observers(&res_temperature);
 }
