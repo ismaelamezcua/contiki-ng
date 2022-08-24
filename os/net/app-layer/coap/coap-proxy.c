@@ -53,6 +53,8 @@
 #define LOG_MODULE "coap-proxy"
 #define LOG_LEVEL  LOG_LEVEL_COAP
 
+coap_transaction_t *source_transaction;
+coap_transaction_t *target_transaction;
 char source_address[128];
 uint16_t source_mid;
 
@@ -78,12 +80,12 @@ print_active_transactions(void)
 void
 handle_proxy_request(coap_message_t message[], const coap_endpoint_t *endpoint)
 {
-  /* coap_transaction_t *transaction = NULL; */
-  coap_transaction_t *target_transaction = NULL;
   static coap_message_t request[1];
   coap_endpoint_t target_endpoint;
 
   LOG_DBG("  Handling a request with mid %u.\n", message->mid);
+
+  source_transaction = coap_new_transaction(message->mid, endpoint);
 
   /* Sending a new request to the target before responding to source */
   if(message->proxy_uri_len) {
@@ -132,8 +134,6 @@ handle_proxy_request(coap_message_t message[], const coap_endpoint_t *endpoint)
 void
 handle_proxy_response(coap_message_t message[], const coap_endpoint_t *endpoint)
 {
-  coap_transaction_t *transaction = NULL;
-  coap_transaction_t *source_transaction = NULL;
   coap_endpoint_t source_endpoint;
   coap_message_t source_response[1];
   /* coap_message_t response[1]; */
@@ -151,25 +151,20 @@ handle_proxy_response(coap_message_t message[], const coap_endpoint_t *endpoint)
   }
 
   coap_set_src_endpoint(source_response, &source_endpoint);
+  coap_init_message(source_response, message->type, CONTENT_2_05, source_transaction->mid);
 
-  if((source_transaction = coap_new_transaction(message->mid, &source_endpoint))) {
-    message->type == COAP_TYPE_CON
-      ? coap_init_message(source_response, COAP_TYPE_ACK, CONTENT_2_05, source_mid)
-      : coap_init_message(source_response, COAP_TYPE_NON, CONTENT_2_05, coap_get_mid());
-
-    if(message->token_len) {
-      coap_set_token(source_response, message->token, message->token_len);
-    }
-
-    coap_set_header_content_format(source_response, APPLICATION_JSON);
-    coap_set_payload(source_response, message->payload, message->payload_len);
-
-    if((source_transaction->message_len = coap_serialize_message(source_response, source_transaction->message)) == 0) {
-      coap_status_code = PACKET_SERIALIZATION_ERROR;
-    }
-
-    coap_send_transaction(source_transaction);
+  if(message->token_len) {
+    coap_set_token(source_response, message->token, message->token_len);
   }
+
+  coap_set_header_content_format(source_response, APPLICATION_JSON);
+  coap_set_payload(source_response, message->payload, message->payload_len);
+
+  if((source_transaction->message_len = coap_serialize_message(source_response, source_transaction->message)) == 0) {
+    coap_status_code = PACKET_SERIALIZATION_ERROR;
+  }
+
+  coap_send_transaction(source_transaction);
 
   if(message->type == COAP_TYPE_CON && message->code == 0) {
     LOG_INFO("Received a Ping.\n");
@@ -183,17 +178,15 @@ handle_proxy_response(coap_message_t message[], const coap_endpoint_t *endpoint)
     coap_remove_observer_by_mid(endpoint, message->mid);
   }
 
-  if((transaction = coap_get_transaction_by_mid(message->mid))) {
-    /* Free transaction memory before Callback, as it may create a new Transaction */
-    coap_resource_response_handler_t callback = transaction->callback;
-    void *callback_data = transaction->callback_data;
+  /* Free transaction memory before Callback, as it may create a new Transaction */
+  coap_resource_response_handler_t callback = target_transaction->callback;
+  void *callback_data = target_transaction->callback_data;
 
-    coap_clear_transaction(transaction);
+  coap_clear_transaction(target_transaction);
 
-    /* Check if a Callback is registered */
-    if(callback) {
-      callback(callback_data, message);
-    }
+  /* Check if a Callback is registered */
+  if(callback) {
+    callback(callback_data, message);
   }
 
   coap_status_code = NO_ERROR;
