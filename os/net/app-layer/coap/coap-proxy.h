@@ -46,9 +46,6 @@
 
 /* Container for a pair of CoAP transactions */
 typedef struct transaction_pair {
-  /* for LIST */
-  struct transaction_pair *next;
-
   uint16_t mid;
   coap_transaction_t *source;
   coap_transaction_t *target;

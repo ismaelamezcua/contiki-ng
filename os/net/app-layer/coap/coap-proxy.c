@@ -53,27 +53,7 @@
 #define LOG_MODULE "coap-proxy"
 #define LOG_LEVEL  LOG_LEVEL_COAP
 
-coap_transaction_t *source_transaction;
-coap_transaction_t *target_transaction;
-char source_address[128];
-uint16_t source_mid;
-
-/*---------------------------------------------------------------------------*/
-/*- Temporal functions ------------------------------------------------------*/
-/*---------------------------------------------------------------------------*/
-void
-logger(char *message)
-{
-  LOG_DBG_COAP_STRING(message, strlen(message));
-  LOG_DBG_("\n");
-}
-void
-print_active_transactions(void)
-{
-  LOG_DBG("  Printing transactions in the list:\n");
-  coap_print_transactions();
-  LOG_DBG_("\n");
-}
+transaction_pair_t transactions;
 /*---------------------------------------------------------------------------*/
 /*- Internal Proxy Engine ---------------------------------------------------*/
 /*---------------------------------------------------------------------------*/
@@ -82,23 +62,21 @@ handle_proxy_request(coap_message_t message[], const coap_endpoint_t *endpoint)
 {
   static coap_message_t request[1];
   coap_endpoint_t target_endpoint;
+  char source_address[128];
 
   LOG_DBG("  Handling a request with mid %u.\n", message->mid);
 
-  source_transaction = coap_new_transaction(message->mid, endpoint);
+  transactions.source = coap_new_transaction(message->mid, endpoint);
+  transactions.mid = message->mid;
 
   /* Sending a new request to the target before responding to source */
   if(message->proxy_uri_len) {
     /* Extract the IP address from Proxy-Uri */
     uiplib_ipaddr_snprint(source_address, sizeof(source_address), &endpoint->ipaddr);
-    source_mid = message->mid;
 
     /* Extract Uri-Path from the Proxy-Uri option */
     char *locate_bracket = strchr(message->proxy_uri, ']');
     char *request_path = locate_bracket + 1;
-
-    LOG_DBG("  source address: %s  source MID: %u\n", source_address, source_mid);
-    LOG_DBG("  Request-Path: %s\n", request_path);
 
     /* Creates a new endpoint for the proxy and the target */
     if((coap_endpoint_parse(message->proxy_uri, message->proxy_uri_len, &target_endpoint)) == 0) {
@@ -112,46 +90,30 @@ handle_proxy_request(coap_message_t message[], const coap_endpoint_t *endpoint)
 
     /* Sends a COAP GET request to the target server */
     uint16_t new_mid = coap_get_mid();
-    if((target_transaction = coap_new_transaction(new_mid, &target_endpoint))) {
+    if((transactions.target = coap_new_transaction(new_mid, &target_endpoint))) {
       coap_init_message(request, message->type, COAP_GET, new_mid);
       coap_set_header_uri_path(request, request_path);
-      if((target_transaction->message_len = coap_serialize_message(request, target_transaction->message)) == 0) {
+      if((transactions.target->message_len = coap_serialize_message(request, transactions.target->message)) == 0) {
         coap_status_code = PACKET_SERIALIZATION_ERROR;
 
         return;
       }
 
-      coap_send_transaction(target_transaction);
+      coap_send_transaction(transactions.target);
     }
   }
-
-  /* Check for transactions */
-  logger("\n=================== Active transactions:\n");
-  print_active_transactions();
 
   return;
 }
 void
 handle_proxy_response(coap_message_t message[], const coap_endpoint_t *endpoint)
 {
-  coap_endpoint_t source_endpoint;
   coap_message_t source_response[1];
-  /* coap_message_t response[1]; */
 
   LOG_DBG("  Handling a response with mid %u.\n", message->mid);
 
   /* Send the response back to the source node */
-  if((coap_endpoint_parse(source_address, strlen(source_address), &source_endpoint)) == 0) {
-    LOG_DBG("  Error: Could not create endpoint for ");
-    LOG_DBG_COAP_STRING(source_address, strlen(source_address));
-    LOG_DBG_("\n");
-    coap_status_code = ERROR_RESPONSE_CODE;
-
-    return;
-  }
-
-  coap_set_src_endpoint(source_response, &source_endpoint);
-  coap_init_message(source_response, message->type, CONTENT_2_05, source_transaction->mid);
+  coap_init_message(source_response, message->type, CONTENT_2_05, transactions.source->mid);
 
   if(message->token_len) {
     coap_set_token(source_response, message->token, message->token_len);
@@ -160,11 +122,11 @@ handle_proxy_response(coap_message_t message[], const coap_endpoint_t *endpoint)
   coap_set_header_content_format(source_response, APPLICATION_JSON);
   coap_set_payload(source_response, message->payload, message->payload_len);
 
-  if((source_transaction->message_len = coap_serialize_message(source_response, source_transaction->message)) == 0) {
+  if((transactions.source->message_len = coap_serialize_message(source_response, transactions.source->message)) == 0) {
     coap_status_code = PACKET_SERIALIZATION_ERROR;
   }
 
-  coap_send_transaction(source_transaction);
+  coap_send_transaction(transactions.source);
 
   if(message->type == COAP_TYPE_CON && message->code == 0) {
     LOG_INFO("Received a Ping.\n");
@@ -179,10 +141,10 @@ handle_proxy_response(coap_message_t message[], const coap_endpoint_t *endpoint)
   }
 
   /* Free transaction memory before Callback, as it may create a new Transaction */
-  coap_resource_response_handler_t callback = target_transaction->callback;
-  void *callback_data = target_transaction->callback_data;
+  coap_resource_response_handler_t callback = transactions.target->callback;
+  void *callback_data = transactions.target->callback_data;
 
-  coap_clear_transaction(target_transaction);
+  coap_clear_transaction(transactions.target);
 
   /* Check if a Callback is registered */
   if(callback) {
