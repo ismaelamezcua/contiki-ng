@@ -47,13 +47,57 @@
 #include "coap-transactions.h"
 #include "uiplib.h"
 #include "lib/random.h"
+#include "lib/memb.h"
+#include "lib/list.h"
 
 /* Log configuration */
 #include "coap-log.h"
 #define LOG_MODULE "coap-proxy"
 #define LOG_LEVEL  LOG_LEVEL_COAP
 
-transaction_pair_t transactions;
+/*---------------------------------------------------------------------------*/
+MEMB(tp_memb, coap_transaction_pair_t, COAP_MAX_OPEN_TRANSACTIONS);
+LIST(tp_list);
+/*---------------------------------------------------------------------------*/
+void
+coap_new_transaction_pair(uint16_t mid, coap_transaction_t *s, coap_transaction_t *t)
+{
+  coap_transaction_pair_t *tp = memb_alloc(&tp_memb);
+
+  if(tp) {
+    tp->mid = mid;
+    tp->source = s;
+    tp->target = t;
+
+    list_add(tp_list, tp);
+    LOG_DBG("Created a coap_transaction_pair_t LIST\n");
+  }
+}
+/*---------------------------------------------------------------------------*/
+void
+coap_clear_transaction_pair(coap_transaction_pair_t *tp)
+{
+  if(tp) {
+    LOG_DBG("Freeing transaction pair %u: s -> %p, t -> %p", tp->mid, tp->source, tp->target);
+    list_remove(tp_list, tp);
+    memb_free(&tp_memb, tp);
+  }
+}
+/*---------------------------------------------------------------------------*/
+coap_transaction_pair_t *
+coap_get_transaction_pair_by_mid(uint16_t mid)
+{
+  coap_transaction_pair_t *tp = NULL;
+
+  for(tp = (coap_transaction_pair_t *)list_head(tp_list); tp; tp = tp->next) {
+    if(tp->mid == mid) {
+      LOG_DBG("Found transaction pair for MID %u: s -> %p, t -> %p\n", tp->mid, tp->source, tp->target);
+      return tp;
+    }
+  }
+
+  return NULL;
+}
 /*---------------------------------------------------------------------------*/
 /*- Internal Proxy Engine ---------------------------------------------------*/
 /*---------------------------------------------------------------------------*/
@@ -62,12 +106,13 @@ handle_proxy_request(coap_message_t message[], const coap_endpoint_t *endpoint)
 {
   static coap_message_t request[1];
   coap_endpoint_t target_endpoint;
+  coap_transaction_t *source_transaction;
+  coap_transaction_t *target_transaction;
   char source_address[128];
 
   LOG_DBG("  Handling a request with mid %u.\n", message->mid);
 
-  transactions.source = coap_new_transaction(message->mid, endpoint);
-  transactions.mid = message->mid;
+  source_transaction = coap_new_transaction(message->mid, endpoint);
 
   /* Sending a new request to the target before responding to source */
   if(message->proxy_uri_len) {
@@ -90,16 +135,19 @@ handle_proxy_request(coap_message_t message[], const coap_endpoint_t *endpoint)
 
     /* Sends a COAP GET request to the target server */
     uint16_t new_mid = coap_get_mid();
-    if((transactions.target = coap_new_transaction(new_mid, &target_endpoint))) {
+    if((target_transaction = coap_new_transaction(new_mid, &target_endpoint))) {
+      /* Create a transaction_pair LIST */
+      coap_new_transaction_pair(new_mid, source_transaction, target_transaction);
+
       coap_init_message(request, message->type, COAP_GET, new_mid);
       coap_set_header_uri_path(request, request_path);
-      if((transactions.target->message_len = coap_serialize_message(request, transactions.target->message)) == 0) {
+      if((target_transaction->message_len = coap_serialize_message(request, target_transaction->message)) == 0) {
         coap_status_code = PACKET_SERIALIZATION_ERROR;
 
         return;
       }
 
-      coap_send_transaction(transactions.target);
+      coap_send_transaction(target_transaction);
       LOG_INFO("Handling proxy request with path %s to ", request_path);
       LOG_INFO_COAP_EP(&target_endpoint);
       LOG_INFO_("\n");
@@ -112,11 +160,19 @@ void
 handle_proxy_response(coap_message_t message[], const coap_endpoint_t *endpoint)
 {
   coap_message_t source_response[1];
+  coap_transaction_pair_t *transaction_pair;
+  coap_transaction_t *source_transaction;
+  coap_transaction_t *target_transaction;
 
   LOG_DBG("  Handling a response with mid %u.\n", message->mid);
 
+  /* Get the transaction pair from the message MID */
+  transaction_pair = coap_get_transaction_pair_by_mid(message->mid);
+  source_transaction = transaction_pair->source;
+  target_transaction = transaction_pair->target;
+
   /* Send the response back to the source node */
-  coap_init_message(source_response, message->type, CONTENT_2_05, transactions.source->mid);
+  coap_init_message(source_response, message->type, CONTENT_2_05, source_transaction->mid);
 
   if(message->token_len) {
     coap_set_token(source_response, message->token, message->token_len);
@@ -125,11 +181,11 @@ handle_proxy_response(coap_message_t message[], const coap_endpoint_t *endpoint)
   coap_set_header_content_format(source_response, APPLICATION_JSON);
   coap_set_payload(source_response, message->payload, message->payload_len);
 
-  if((transactions.source->message_len = coap_serialize_message(source_response, transactions.source->message)) == 0) {
+  if((source_transaction->message_len = coap_serialize_message(source_response, source_transaction->message)) == 0) {
     coap_status_code = PACKET_SERIALIZATION_ERROR;
   }
 
-  coap_send_transaction(transactions.source);
+  coap_send_transaction(source_transaction);
 
   LOG_INFO("Received response from ");
   LOG_INFO_COAP_EP(endpoint);
@@ -138,8 +194,11 @@ handle_proxy_response(coap_message_t message[], const coap_endpoint_t *endpoint)
   LOG_INFO_("\n");
 
   LOG_INFO("Sending data back to ");
-  LOG_INFO_COAP_EP(&transactions.source->endpoint);
+  LOG_INFO_COAP_EP(&source_transaction->endpoint);
   LOG_INFO_("\n");
+
+  /* Remove the transaction_pair from the LIST */
+  coap_clear_transaction_pair(transaction_pair);
 
   if(message->type == COAP_TYPE_CON && message->code == 0) {
     LOG_INFO("Received a Ping.\n");
@@ -154,10 +213,10 @@ handle_proxy_response(coap_message_t message[], const coap_endpoint_t *endpoint)
   }
 
   /* Free transaction memory before Callback, as it may create a new Transaction */
-  coap_resource_response_handler_t callback = transactions.target->callback;
-  void *callback_data = transactions.target->callback_data;
+  coap_resource_response_handler_t callback = target_transaction->callback;
+  void *callback_data = target_transaction->callback_data;
 
-  coap_clear_transaction(transactions.target);
+  coap_clear_transaction(target_transaction);
 
   /* Check if a Callback is registered */
   if(callback) {

@@ -45,11 +45,13 @@
 #include "coap-engine.h"
 
 /* Container for a pair of CoAP transactions */
-typedef struct transaction_pair {
+typedef struct coap_transaction_pair {
+  struct coap_transaction_pair *next;   /* For LIST */
+
   uint16_t mid;
   coap_transaction_t *source;
   coap_transaction_t *target;
-} transaction_pair_t;
+} coap_transaction_pair_t;
 
 int
 coap_proxy_receive(const coap_endpoint_t *src,
