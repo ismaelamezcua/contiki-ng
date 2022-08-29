@@ -100,6 +100,9 @@ handle_proxy_request(coap_message_t message[], const coap_endpoint_t *endpoint)
       }
 
       coap_send_transaction(transactions.target);
+      LOG_INFO("Handling proxy request with path %s to ", request_path);
+      LOG_INFO_COAP_EP(&target_endpoint);
+      LOG_INFO_("\n");
     }
   }
 
@@ -127,6 +130,16 @@ handle_proxy_response(coap_message_t message[], const coap_endpoint_t *endpoint)
   }
 
   coap_send_transaction(transactions.source);
+
+  LOG_INFO("Received response from ");
+  LOG_INFO_COAP_EP(endpoint);
+  LOG_INFO_(" with payload: ");
+  LOG_INFO_COAP_STRING((char *)message->payload, message->payload_len);
+  LOG_INFO_("\n");
+
+  LOG_INFO("Sending data back to ");
+  LOG_INFO_COAP_EP(&transactions.source->endpoint);
+  LOG_INFO_("\n");
 
   if(message->type == COAP_TYPE_CON && message->code == 0) {
     LOG_INFO("Received a Ping.\n");
