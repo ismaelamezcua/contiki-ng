@@ -1,0 +1,165 @@
+00:00.236	ID:2	[INFO: Main      ] Starting Contiki-NG-release/v4.7-479-gd521a352b-dirty
+00:00.236	ID:2	[INFO: Main      ] - Routing: RPL Lite
+00:00.236	ID:2	[INFO: Main      ] - Net: sicslowpan
+00:00.236	ID:2	[INFO: Main      ] - MAC: CSMA
+00:00.236	ID:2	[INFO: Main      ] - 802.15.4 PANID: 0xabcd
+00:00.236	ID:2	[INFO: Main      ] - 802.15.4 Default channel: 26
+00:00.236	ID:2	[INFO: Main      ] Node ID: 2
+00:00.236	ID:2	[INFO: Main      ] Link-layer address: 0002.0002.0002.0002
+00:00.236	ID:2	[INFO: Main      ] Tentative link-local IPv6 address: fe80::202:2:2:2
+00:00.236	ID:2	[INFO: coap-eng  ] Starting CoAP engine...
+00:00.236	ID:2	[INFO: coap-eng  ] Activating: .well-known/core
+00:00.236	ID:2	[INFO: coap-uip  ] Listening on port 5683
+00:00.382	ID:1	[INFO: Main      ] Starting Contiki-NG-release/v4.7-479-gd521a352b-dirty
+00:00.382	ID:1	[INFO: Main      ] - Routing: RPL Lite
+00:00.382	ID:1	[INFO: Main      ] - Net: sicslowpan
+00:00.382	ID:1	[INFO: Main      ] - MAC: CSMA
+00:00.382	ID:1	[INFO: Main      ] - 802.15.4 PANID: 0xabcd
+00:00.382	ID:1	[INFO: Main      ] - 802.15.4 Default channel: 26
+00:00.382	ID:1	[INFO: Main      ] Node ID: 1
+00:00.382	ID:1	[INFO: Main      ] Link-layer address: 0001.0001.0001.0001
+00:00.382	ID:1	[INFO: Main      ] Tentative link-local IPv6 address: fe80::201:1:1:1
+00:00.382	ID:1	[INFO: coap-eng  ] Starting CoAP engine...
+00:00.382	ID:1	[INFO: coap-eng  ] Initializing in proxy mode...
+00:00.382	ID:1	[INFO: coap-uip  ] Listening on port 5683
+00:00.382	ID:1	[INFO: Simple CoAP Proxy] Simple CoAP proxy for Node 1 has started.
+00:00.899	ID:3	[INFO: Main      ] Starting Contiki-NG-release/v4.7-479-gd521a352b-dirty
+00:00.899	ID:3	[INFO: Main      ] - Routing: RPL Lite
+00:00.899	ID:3	[INFO: Main      ] - Net: sicslowpan
+00:00.899	ID:3	[INFO: Main      ] - MAC: CSMA
+00:00.899	ID:3	[INFO: Main      ] - 802.15.4 PANID: 0xabcd
+00:00.899	ID:3	[INFO: Main      ] - 802.15.4 Default channel: 26
+00:00.899	ID:3	[INFO: Main      ] Node ID: 3
+00:00.899	ID:3	[INFO: Main      ] Link-layer address: 0003.0003.0003.0003
+00:00.899	ID:3	[INFO: Main      ] Tentative link-local IPv6 address: fe80::203:3:3:3
+00:00.899	ID:3	[INFO: coap-eng  ] Starting CoAP engine...
+00:00.899	ID:3	[INFO: coap-eng  ] Activating: .well-known/core
+00:00.899	ID:3	[INFO: coap-uip  ] Listening on port 5683
+00:00.899	ID:3	[INFO: Simple CoAP Server] Simple CoAP server for Node 3 has started.
+00:00.899	ID:3	[INFO: coap-eng  ] Activating: sensors/humidity
+00:00.899	ID:3	[INFO: coap-eng  ] Activating: sensors/temperature
+00:10.236	ID:2	Timer triggered a request.
+00:10.236	ID:2	Sending a request: /.well-known/core
+00:10.236	ID:2	coap://[fe80::201:1:1:1]:5683
+00:10.236	ID:2	[DBG : coap      ] -Serializing MID 7485 to #0x7f308b7898a2, Token (len 0)-
+00:10.236	ID:2	[DBG : coap      ] -Serializing options at #0x7f308b7898a6-
+00:10.236	ID:2	[DBG : coap      ] Serialize content format: 0
+00:10.236	ID:2	[DBG : coap      ] Proxy-Uri [coap://[fe80::203:3:3:3]/sensors/temperature]
+00:10.236	ID:2	[DBG : coap      ] ARRAY type 35, len 44, full [coap://[fe80::203:3:3:3]/sensors/temperature]
+00:10.236	ID:2	[DBG : coap      ] WRITTEN 3 B opt header
+00:10.236	ID:2	[DBG : coap      ] OPTION type 35, delta 35, len 44
+00:10.236	ID:2	[DBG : coap      ] -Done serializing at #0x7f308b7898d5----
+00:10.236	ID:2	[DBG : coap      ] -Done 51 B (header len 51, payload len 0)-
+00:10.236	ID:2	[DBG : coap      ] Dump [0x40 01 1D 3D  DD 16 1F 63]
+00:10.236	ID:2	[DBG : coap      ] Sending transaction 7485
+00:10.237	ID:2	[INFO: coap-uip  ] sent to coap://[fe80::201:1:1:1]:5683 51 bytes
+00:10.237	ID:2	[DBG : coap      ] Keeping transaction 7485
+00:10.237	ID:2	[DBG : coap      ] Initial interval 3166 msec
+00:10.237	ID:2	[DBG : coap      ] Requested #0 (MID 7485)
+00:10.248	ID:1	[INFO: coap-uip  ] receiving UDP datagram from [fe80::202:2:2:2]:5683
+00:10.248	ID:1	[INFO: coap-uip  ]   Length: 51
+00:10.248	ID:1	[DBG : coap      ] Token (len 0) [0x0000000000000000]
+00:10.248	ID:1	[DBG : coap      ] OPTION 35 (delta 35, len 44): Proxy-Uri processing [coap://[fe80::203:3:3:3]/sensors/temperature]
+00:10.248	ID:1	[DBG : coap      ] -Done parsing-------
+00:10.248	ID:1	[DBG : coap-proxy]   Handle request: version 1, type 0, token , code 1, mid 7485
+00:10.248	ID:1	[DBG : coap-proxy]   URL: (NULL STR)
+00:10.248	ID:1	[DBG : coap-proxy]   Payload: (NULL STR)
+00:10.248	ID:1	[DBG : coap-proxy]   Proxy-Uri: coap://[fe80::203:3:3:3]/sensors/temperature
+00:10.248	ID:1	[DBG : coap-proxy]   Handling a request with mid 7485.
+00:10.248	ID:1	[DBG : coap      ] -Serializing MID 55336 to #0x7f308b9ed88a, Token (len 0)-
+00:10.248	ID:1	[DBG : coap      ] -Serializing options at #0x7f308b9ed88e-
+00:10.248	ID:1	[DBG : coap      ] Uri-Path [sensors/temperature]
+00:10.248	ID:1	[DBG : coap      ] ARRAY type 11, len 19, full [sensors/temperature]
+00:10.248	ID:1	[DBG : coap      ] STEP 0/19 (s)
+00:10.248	ID:1	[DBG : coap      ] STEP 1/19 (e)
+00:10.248	ID:1	[DBG : coap      ] STEP 2/19 (n)
+00:10.248	ID:1	[DBG : coap      ] STEP 3/19 (s)
+00:10.248	ID:1	[DBG : coap      ] STEP 4/19 (o)
+00:10.248	ID:1	[DBG : coap      ] STEP 5/19 (r)
+00:10.248	ID:1	[DBG : coap      ] STEP 6/19 (s)
+00:10.248	ID:1	[DBG : coap      ] STEP 7/19 (/)
+00:10.248	ID:1	[DBG : coap      ] WRITTEN 1 B opt header
+00:10.248	ID:1	[DBG : coap      ] OPTION type 11, delta 11, len 8, part [sensors]
+00:10.248	ID:1	[DBG : coap      ] STEP 9/19 (e)
+00:10.248	ID:1	[DBG : coap      ] STEP 10/19 (m)
+00:10.248	ID:1	[DBG : coap      ] STEP 11/19 (p)
+00:10.248	ID:1	[DBG : coap      ] STEP 12/19 (e)
+00:10.248	ID:1	[DBG : coap      ] STEP 13/19 (r)
+00:10.248	ID:1	[DBG : coap      ] STEP 14/19 (a)
+00:10.248	ID:1	[DBG : coap      ] STEP 15/19 (t)
+00:10.248	ID:1	[DBG : coap      ] STEP 16/19 (u)
+00:10.248	ID:1	[DBG : coap      ] STEP 17/19 (r)
+00:10.248	ID:1	[DBG : coap      ] STEP 18/19 (e)
+00:10.248	ID:1	[DBG : coap      ] STEP 19/19 ()
+00:10.248	ID:1	[DBG : coap      ] WRITTEN 1 B opt header
+00:10.248	ID:1	[DBG : coap      ] OPTION type 11, delta 0, len 20, part [temperature]
+00:10.248	ID:1	[DBG : coap      ] Serialize content format: 0
+00:10.248	ID:1	[DBG : coap      ] -Done serializing at #0x7f308b9ed8a2----
+00:10.248	ID:1	[DBG : coap      ] -Done 24 B (header len 24, payload len 0)-
+00:10.248	ID:1	[DBG : coap      ] Dump [0x40 01 D8 28  B7 73 65 6E]
+00:10.248	ID:1	[DBG : coap      ] Sending transaction 55336
+00:10.249	ID:1	[INFO: coap-uip  ] sent to coap://[fe80::203:3:3:3]:5683 24 bytes
+00:10.249	ID:1	[DBG : coap      ] Keeping transaction 55336
+00:10.249	ID:1	[DBG : coap      ] Initial interval 3014 msec
+00:10.249	ID:1	[INFO: coap-proxy] Handling proxy request with path /sensors/temperature to coap://[fe80::203:3:3:3]:5683
+00:10.290	ID:3	[INFO: coap-uip  ] receiving UDP datagram from [fe80::201:1:1:1]:5683
+00:10.290	ID:3	[INFO: coap-uip  ]   Length: 24
+00:10.290	ID:3	[DBG : coap      ] Token (len 0) [0x0000000000000000]
+00:10.290	ID:3	[DBG : coap      ] OPTION 11 (delta 11, len 7): Uri-Path [sensors]
+00:10.290	ID:3	[DBG : coap      ] OPTION 11 (delta 0, len 11): Uri-Path [sensors/temperature]
+00:10.290	ID:3	[DBG : coap      ] -Done parsing-------
+00:10.290	ID:3	[DBG : coap-eng  ]   Parsed: v 1, t 0, tkl 0, c 1, mid 55336
+00:10.290	ID:3	[DBG : coap-eng  ]   URL:sensors/temperature
+00:10.290	ID:3	[DBG : coap-eng  ]   Payload: (NULL STR)
+00:10.290	ID:3	[INFO: coap-eng  ] /sensors/temperature, method 1, resource->flags 0
+00:10.290	ID:3	[DBG : coap      ] -Serializing MID 55336 to #0x7f3140069a02, Token (len 0)-
+00:10.290	ID:3	[DBG : coap      ] -Serializing options at #0x7f3140069a06-
+00:10.290	ID:3	[DBG : coap      ] Serialize content format: 50
+00:10.290	ID:3	[DBG : coap      ] Content-Format [50]
+00:10.290	ID:3	[DBG : coap      ] OPTION 12 (delta 12, len 1)
+00:10.290	ID:3	[DBG : coap      ] WRITTEN 1 B opt header
+00:10.290	ID:3	[DBG : coap      ] -Done serializing at #0x7f3140069a08----
+00:10.290	ID:3	[DBG : coap      ] -Done 27 B (header len 7, payload len 20)-
+00:10.290	ID:3	[DBG : coap      ] Dump [0x60 45 D8 28  C1 32 FF 7B]
+00:10.290	ID:3	[DBG : coap      ] Sending transaction 55336
+00:10.291	ID:3	[INFO: coap-uip  ] sent to coap://[fe80::201:1:1:1]:5683 27 bytes
+00:10.291	ID:3	[DBG : coap      ] Freeing transaction 55336: #0x7f31400699a0
+00:10.310	ID:1	[INFO: coap-uip  ] receiving UDP datagram from [fe80::203:3:3:3]:5683
+00:10.310	ID:1	[INFO: coap-uip  ]   Length: 27
+00:10.310	ID:1	[DBG : coap      ] Token (len 0) [0x0000000000000000]
+00:10.310	ID:1	[DBG : coap      ] OPTION 12 (delta 12, len 1): Content-Format [50]
+00:10.310	ID:1	[DBG : coap      ] -Done parsing-------
+00:10.310	ID:1	[DBG : coap-proxy]   Handle request: version 1, type 2, token , code 69, mid 55336
+00:10.310	ID:1	[DBG : coap-proxy]   URL: (NULL STR)
+00:10.310	ID:1	[DBG : coap-proxy]   Payload: {"temperature": "6"}
+00:10.310	ID:1	[DBG : coap-proxy]   Handling a response with mid 55336.
+00:10.310	ID:1	[DBG : coap      ] -Serializing MID 7485 to #0x7f308b9ed7a2, Token (len 0)-
+00:10.310	ID:1	[DBG : coap      ] -Serializing options at #0x7f308b9ed7a6-
+00:10.310	ID:1	[DBG : coap      ] Serialize content format: 50
+00:10.310	ID:1	[DBG : coap      ] Content-Format [50]
+00:10.310	ID:1	[DBG : coap      ] OPTION 12 (delta 12, len 1)
+00:10.310	ID:1	[DBG : coap      ] WRITTEN 1 B opt header
+00:10.310	ID:1	[DBG : coap      ] -Done serializing at #0x7f308b9ed7a8----
+00:10.310	ID:1	[DBG : coap      ] -Done 27 B (header len 7, payload len 20)-
+00:10.310	ID:1	[DBG : coap      ] Dump [0x60 45 1D 3D  C1 32 FF 7B]
+00:10.310	ID:1	[DBG : coap      ] Sending transaction 7485
+00:10.311	ID:1	[INFO: coap-uip  ] sent to coap://[fe80::202:2:2:2]:5683 27 bytes
+00:10.311	ID:1	[DBG : coap      ] Freeing transaction 7485: #0x7f308b9ed740
+00:10.311	ID:1	[INFO: coap-proxy] Received response from coap://[fe80::203:3:3:3]:5683 with payload: {"temperature": "6"}
+00:10.311	ID:1	[INFO: coap-proxy] Sending data back to coap://[fe80::202:2:2:2]:5683
+00:10.311	ID:1	[DBG : coap-proxy]   Received ACK.
+00:10.311	ID:1	[DBG : coap      ] Freeing transaction 55336: #0x7f308b9ed828
+00:10.350	ID:2	[INFO: coap-uip  ] receiving UDP datagram from [fe80::201:1:1:1]:5683
+00:10.350	ID:2	[INFO: coap-uip  ]   Length: 27
+00:10.350	ID:2	[DBG : coap      ] Token (len 0) [0x0000000000000000]
+00:10.350	ID:2	[DBG : coap      ] OPTION 12 (delta 12, len 1): Content-Format [50]
+00:10.350	ID:2	[DBG : coap      ] -Done parsing-------
+00:10.350	ID:2	[DBG : coap-eng  ]   Parsed: v 1, t 2, tkl 0, c 69, mid 7485
+00:10.350	ID:2	[DBG : coap-eng  ]   URL:(NULL STR)
+00:10.350	ID:2	[DBG : coap-eng  ]   Payload: {"temperature": "6"}
+00:10.350	ID:2	[DBG : coap-eng  ] Received ACK
+00:10.350	ID:2	[DBG : coap      ] Found transaction for MID 7485: #0x7f308b789840
+00:10.350	ID:2	[DBG : coap      ] Freeing transaction 7485: #0x7f308b789840
+00:10.350	ID:2	[DBG : coap      ] Received #0 (20 bytes)
+00:10.350	ID:2	|{"temperature": "6"}
+00:10.350	ID:2	 Done with the request.
