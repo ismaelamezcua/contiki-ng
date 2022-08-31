@@ -38,66 +38,22 @@
  */
 
 /**
- * \addtogroup coap
+ * \addtogroup coap-proxy
  * @{
  */
 
 #include "coap-proxy.h"
 #include "coap-engine.h"
 #include "coap-transactions.h"
+#include "coap-proxy-transactions.h"
 #include "uiplib.h"
 #include "lib/random.h"
-#include "lib/memb.h"
-#include "lib/list.h"
 
 /* Log configuration */
 #include "coap-log.h"
 #define LOG_MODULE "coap-proxy"
 #define LOG_LEVEL  LOG_LEVEL_COAP
 
-/*---------------------------------------------------------------------------*/
-MEMB(tp_memb, coap_transaction_pair_t, COAP_MAX_OPEN_TRANSACTIONS);
-LIST(tp_list);
-/*---------------------------------------------------------------------------*/
-void
-coap_new_transaction_pair(uint16_t mid, coap_transaction_t *s, coap_transaction_t *t)
-{
-  coap_transaction_pair_t *tp = memb_alloc(&tp_memb);
-
-  if(tp) {
-    tp->mid = mid;
-    tp->source = s;
-    tp->target = t;
-
-    list_add(tp_list, tp);
-    LOG_DBG("Created a coap_transaction_pair_t LIST\n");
-  }
-}
-/*---------------------------------------------------------------------------*/
-void
-coap_clear_transaction_pair(coap_transaction_pair_t *tp)
-{
-  if(tp) {
-    LOG_DBG("Freeing transaction pair %u: s -> %p, t -> %p", tp->mid, tp->source, tp->target);
-    list_remove(tp_list, tp);
-    memb_free(&tp_memb, tp);
-  }
-}
-/*---------------------------------------------------------------------------*/
-coap_transaction_pair_t *
-coap_get_transaction_pair_by_mid(uint16_t mid)
-{
-  coap_transaction_pair_t *tp = NULL;
-
-  for(tp = (coap_transaction_pair_t *)list_head(tp_list); tp; tp = tp->next) {
-    if(tp->mid == mid) {
-      LOG_DBG("Found transaction pair for MID %u: s -> %p, t -> %p\n", tp->mid, tp->source, tp->target);
-      return tp;
-    }
-  }
-
-  return NULL;
-}
 /*---------------------------------------------------------------------------*/
 /*- Internal Proxy Engine ---------------------------------------------------*/
 /*---------------------------------------------------------------------------*/
@@ -137,7 +93,7 @@ handle_proxy_request(coap_message_t message[], const coap_endpoint_t *endpoint)
     uint16_t new_mid = coap_get_mid();
     if((target_transaction = coap_new_transaction(new_mid, &target_endpoint))) {
       /* Create a transaction_pair LIST */
-      coap_new_transaction_pair(new_mid, source_transaction, target_transaction);
+      coap_proxy_new_transaction_pair(new_mid, source_transaction, target_transaction);
 
       coap_init_message(request, message->type, COAP_GET, new_mid);
       coap_set_header_uri_path(request, request_path);
@@ -167,7 +123,7 @@ handle_proxy_response(coap_message_t message[], const coap_endpoint_t *endpoint)
   LOG_DBG("  Handling a response with mid %u.\n", message->mid);
 
   /* Get the transaction pair from the message MID */
-  transaction_pair = coap_get_transaction_pair_by_mid(message->mid);
+  transaction_pair = coap_proxy_get_transaction_pair_by_mid(message->mid);
   source_transaction = transaction_pair->source;
   target_transaction = transaction_pair->target;
 
@@ -198,7 +154,7 @@ handle_proxy_response(coap_message_t message[], const coap_endpoint_t *endpoint)
   LOG_INFO_("\n");
 
   /* Remove the transaction_pair from the LIST */
-  coap_clear_transaction_pair(transaction_pair);
+  coap_proxy_clear_transaction_pair(transaction_pair);
 
   if(message->type == COAP_TYPE_CON && message->code == 0) {
     LOG_INFO("Received a Ping.\n");
@@ -261,3 +217,4 @@ coap_proxy_receive(const coap_endpoint_t *src,
   }
   return coap_status_code;
 }
+/** @} */

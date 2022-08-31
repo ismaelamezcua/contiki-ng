@@ -31,7 +31,7 @@
 
 /**
  * \file
- *      CoAP proxy implementation header file.
+ *      CoAP proxy transactions implementation header file.
  * \author
  *      Ismael Amezcua Valdovinos <ismaelamezcua@ucol.mx>
  *      Patricia Elizabeth Figueroa Millan <patricia.figueroa@colima.tecnm.mx>
@@ -42,14 +42,30 @@
  * @{
  */
 
-#ifndef COAP_PROXY_H_
-#define COAP_PROXY_H_
+#ifndef COAP_PROXY_TRANSACTIONS_H_
+#define COAP_PROXY_TRANSACTIONS_H_
 
 #include "coap-engine.h"
 
-int
-coap_proxy_receive(const coap_endpoint_t *src,
-                   uint8_t *payload, uint16_t payload_length);
+/* Container for a pair of CoAP transactions */
+typedef struct coap_transaction_pair {
+  struct coap_transaction_pair *next;
 
-#endif /* COAP_PROXY_H_ */
+  uint16_t mid;
+  coap_transaction_t *source;
+  coap_transaction_t *target;
+} coap_transaction_pair_t;
+
+void
+coap_proxy_new_transaction_pair(uint16_t mid,
+                                coap_transaction_t *source,
+                                coap_transaction_t *target);
+
+void
+coap_proxy_clear_transaction_pair(coap_transaction_pair_t *transaction_pair);
+
+coap_transaction_pair_t *
+coap_proxy_get_transaction_pair_by_mid(uint16_t mid);
+
+#endif /* COAP_PROXY_TRANSACTIONS_H_ */
 /** @} */

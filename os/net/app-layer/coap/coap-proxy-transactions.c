@@ -31,7 +31,7 @@
 
 /**
  * \file
- *      CoAP proxy implementation header file.
+ *      CoAP proxy transactions implementation.
  * \author
  *      Ismael Amezcua Valdovinos <ismaelamezcua@ucol.mx>
  *      Patricia Elizabeth Figueroa Millan <patricia.figueroa@colima.tecnm.mx>
@@ -42,14 +42,60 @@
  * @{
  */
 
-#ifndef COAP_PROXY_H_
-#define COAP_PROXY_H_
-
 #include "coap-engine.h"
+#include "coap-transactions.h"
+#include "coap-proxy-transactions.h"
+#include "lib/memb.h"
+#include "lib/list.h"
 
-int
-coap_proxy_receive(const coap_endpoint_t *src,
-                   uint8_t *payload, uint16_t payload_length);
+/* Log configuration */
+#include "coap-log.h"
+#define LOG_MODULE "coap-proxy"
+#define LOG_LEVEL  LOG_LEVEL_COAP
 
-#endif /* COAP_PROXY_H_ */
-/** @} */
+/*---------------------------------------------------------------------------*/
+MEMB(tp_memb, coap_transaction_pair_t, COAP_MAX_OPEN_TRANSACTIONS);
+LIST(tp_list);
+/*---------------------------------------------------------------------------*/
+void
+coap_proxy_new_transaction_pair(uint16_t mid,
+                                coap_transaction_t *source,
+                                coap_transaction_t *target)
+{
+  coap_transaction_pair_t *tp = memb_alloc(&tp_memb);
+
+  if(tp) {
+    tp->mid = mid;
+    tp->source = source;
+    tp->target = target;
+
+    list_add(tp_list, tp);
+    LOG_DBG("Created a coap_transaction_pair_t LIST\n");
+  }
+}
+/*---------------------------------------------------------------------------*/
+void
+coap_proxy_clear_transaction_pair(coap_transaction_pair_t *tp)
+{
+  if(tp) {
+    LOG_DBG("Freeing transaction pair %u: s -> %p, t -> %p", tp->mid, tp->source, tp->target);
+    list_remove(tp_list, tp);
+    memb_free(&tp_memb, tp);
+  }
+}
+/*---------------------------------------------------------------------------*/
+coap_transaction_pair_t *
+coap_proxy_get_transaction_pair_by_mid(uint16_t mid)
+{
+  coap_transaction_pair_t *tp = NULL;
+
+  for(tp = (coap_transaction_pair_t *)list_head(tp_list); tp; tp = tp->next) {
+    if(tp->mid == mid) {
+      LOG_DBG("Found transaction pair for MID %u: s -> %p, t -> %p\n", tp->mid, tp->source, tp->target);
+      return tp;
+    }
+  }
+
+  return NULL;
+}
+/** @}*/
