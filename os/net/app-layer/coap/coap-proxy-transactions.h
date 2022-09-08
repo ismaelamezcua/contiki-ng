@@ -52,12 +52,14 @@ typedef struct coap_transaction_pair {
   struct coap_transaction_pair *next;
 
   uint16_t mid;
+  char cache_uri[128];
   coap_transaction_t *source;
   coap_transaction_t *target;
 } coap_transaction_pair_t;
 
 void
 coap_proxy_new_transaction_pair(uint16_t mid,
+                                char cache_uri[],
                                 coap_transaction_t *source,
                                 coap_transaction_t *target);
 

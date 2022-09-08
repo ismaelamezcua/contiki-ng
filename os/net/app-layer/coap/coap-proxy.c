@@ -42,12 +42,16 @@
  * @{
  */
 
+#include <string.h>
 #include "coap-proxy.h"
 #include "coap-engine.h"
 #include "coap-transactions.h"
 #include "coap-proxy-transactions.h"
+#include "coap-proxy-cache.h"
 #include "uiplib.h"
 #include "lib/random.h"
+
+#include <string.h>
 
 /* Log configuration */
 #include "coap-log.h"
@@ -65,10 +69,14 @@ handle_proxy_request(coap_message_t message[], const coap_endpoint_t *endpoint)
   coap_transaction_t *source_transaction;
   coap_transaction_t *target_transaction;
   char source_address[128];
+  char cache_uri[128];
 
   LOG_DBG("  Handling a request with mid %u.\n", message->mid);
 
   source_transaction = coap_new_transaction(message->mid, endpoint);
+
+  strncpy(cache_uri, message->proxy_uri, sizeof(cache_uri) - 1);
+  cache_uri[sizeof(cache_uri) - 1] = '\n';
 
   /* Sending a new request to the target before responding to source */
   if(message->proxy_uri_len) {
@@ -93,7 +101,7 @@ handle_proxy_request(coap_message_t message[], const coap_endpoint_t *endpoint)
     uint16_t new_mid = coap_get_mid();
     if((target_transaction = coap_new_transaction(new_mid, &target_endpoint))) {
       /* Create a transaction_pair LIST */
-      coap_proxy_new_transaction_pair(new_mid, source_transaction, target_transaction);
+      coap_proxy_new_transaction_pair(new_mid, cache_uri, source_transaction, target_transaction);
 
       coap_init_message(request, message->type, COAP_GET, new_mid);
       coap_set_header_uri_path(request, request_path);
@@ -127,6 +135,18 @@ handle_proxy_response(coap_message_t message[], const coap_endpoint_t *endpoint)
   source_transaction = transaction_pair->source;
   target_transaction = transaction_pair->target;
 
+  coap_proxy_cache_entry_t *cache = coap_proxy_get_cache_by_uri(transaction_pair->cache_uri);
+  if(!cache) {
+    coap_proxy_new_cache_entry(transaction_pair->cache_uri,
+                               message->payload,
+                               message->payload_len);
+  }
+
+  /* Look for a cache entry for the source transaction */
+  LOG_DBG("Data about the source transaction: ");
+  LOG_DBG_COAP_EP(&source_transaction->endpoint);
+  LOG_DBG_("\n");
+
   /* Send the response back to the source node */
   coap_init_message(source_response, message->type, CONTENT_2_05, source_transaction->mid);
 
@@ -154,6 +174,9 @@ handle_proxy_response(coap_message_t message[], const coap_endpoint_t *endpoint)
   LOG_INFO_("\n");
 
   /* Remove the transaction_pair from the LIST */
+  char temp_char[128];
+  sprintf(temp_char, "%s", transaction_pair->cache_uri);
+  LOG_DBG("TESTING new field: %s\n", temp_char);
   coap_proxy_clear_transaction_pair(transaction_pair);
 
   if(message->type == COAP_TYPE_CON && message->code == 0) {
@@ -200,6 +223,7 @@ coap_proxy_receive(const coap_endpoint_t *src,
   LOG_DBG("  Payload: ");
   LOG_DBG_COAP_STRING((const char *)message->payload, message->payload_len);
   LOG_DBG_("\n");
+
   if(message->proxy_uri_len) {
     LOG_DBG("  Proxy-Uri: ");
     LOG_DBG_COAP_STRING(message->proxy_uri, message->proxy_uri_len);

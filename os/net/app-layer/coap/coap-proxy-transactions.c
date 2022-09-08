@@ -47,6 +47,7 @@
 #include "coap-proxy-transactions.h"
 #include "lib/memb.h"
 #include "lib/list.h"
+#include <string.h>
 
 /* Log configuration */
 #include "coap-log.h"
@@ -59,6 +60,7 @@ LIST(tp_list);
 /*---------------------------------------------------------------------------*/
 void
 coap_proxy_new_transaction_pair(uint16_t mid,
+                                char cache_uri[],
                                 coap_transaction_t *source,
                                 coap_transaction_t *target)
 {
@@ -66,11 +68,12 @@ coap_proxy_new_transaction_pair(uint16_t mid,
 
   if(tp) {
     tp->mid = mid;
+    strcpy(tp->cache_uri, cache_uri);
     tp->source = source;
     tp->target = target;
 
     list_add(tp_list, tp);
-    LOG_DBG("Created a coap_transaction_pair_t LIST\n");
+    LOG_DBG("Created a new transaction pair: MID: %u, URI: %s\n", tp->mid, tp->cache_uri);
   }
 }
 /*---------------------------------------------------------------------------*/
@@ -91,7 +94,7 @@ coap_proxy_get_transaction_pair_by_mid(uint16_t mid)
 
   for(tp = (coap_transaction_pair_t *)list_head(tp_list); tp; tp = tp->next) {
     if(tp->mid == mid) {
-      LOG_DBG("Found transaction pair for MID %u: s -> %p, t -> %p\n", tp->mid, tp->source, tp->target);
+      LOG_DBG("Found transaction pair for MID %u, URI: %s: s -> %p, t -> %p\n", tp->mid, tp->cache_uri, tp->source, tp->target);
       return tp;
     }
   }
