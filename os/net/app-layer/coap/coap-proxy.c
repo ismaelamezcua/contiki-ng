@@ -137,6 +137,7 @@ handle_proxy_response(coap_message_t message[], const coap_endpoint_t *endpoint)
 
   coap_proxy_cache_entry_t *cache = coap_proxy_get_cache_by_uri(transaction_pair->cache_uri);
   if(!cache) {
+    /* TODO: Currently not working since the payload is not copied correctly into the structure */
     coap_proxy_new_cache_entry(transaction_pair->cache_uri,
                                message->payload,
                                message->payload_len);
