@@ -65,9 +65,7 @@ coap_proxy_new_cache_entry(char proxy_uri[],
 
   if(entry) {
     memcpy(entry->proxy_uri, proxy_uri, strlen(proxy_uri));
-   // strcpy(entry->proxy_uri, proxy_uri);
-    memcpy(entry->payload, payload, (size_t)payload_len);
-    // entry->payload = payload;
+    entry->payload = payload;
     entry->payload_len = payload_len;
 
     LOG_DBG("Created a cache entry for URI %s: %p\n", entry->proxy_uri, entry);
