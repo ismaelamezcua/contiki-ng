@@ -68,6 +68,7 @@ handle_proxy_request(coap_message_t message[], const coap_endpoint_t *endpoint)
   coap_endpoint_t target_endpoint;
   coap_transaction_t *source_transaction;
   coap_transaction_t *target_transaction;
+  coap_proxy_cache_entry_t cache;
   char source_address[128];
   char cache_uri[128];
 
@@ -77,6 +78,13 @@ handle_proxy_request(coap_message_t message[], const coap_endpoint_t *endpoint)
 
   strncpy(cache_uri, message->proxy_uri, sizeof(cache_uri) - 1);
   cache_uri[sizeof(cache_uri) - 1] = '\n';
+
+  cache = coap_proxy_get_cache_by_uri(cache_uri);
+  if(cache) {
+    LOG_DBG("We can send a response directly from here!: ");
+    LOG_DBG_COAP_STRING(cache->payload, cache->payload_len);
+    LOG_DBG_("\n");
+  }
 
   /* Sending a new request to the target before responding to source */
   if(message->proxy_uri_len) {
