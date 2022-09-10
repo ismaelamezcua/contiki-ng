@@ -82,6 +82,26 @@ handle_proxy_request(coap_message_t message[], const coap_endpoint_t *endpoint)
   cache = coap_proxy_get_cache_by_uri(cache_uri);
   if(cache) {
     LOG_DBG("We can send a response directly from here!: %s\n", cache->payload);
+    // coap_transaction_t *cache_transaction = coap_new_transaction(message->mid, endpoint);
+    // coap_message_t *cache_response = NULL;
+    // coap_init_message(cache_response, message->type, CONTENT_2_05, message->mid);
+
+    // // if(message->token_len) {
+    // //   coap_set_token(cache_response, message->token, message->token_len);
+    // // }
+
+    // /* TODO: Dynamically change the content format for this cache entry. */
+    // coap_set_header_content_format(cache_response, APPLICATION_JSON);
+    // // coap_set_payload(cache_response, (uint8_t *)cache->payload, strlen(cache->payload));
+
+    // if((cache_transaction->message_len = coap_serialize_message(cache_response, cache_transaction->message)) == 0) {
+    //   coap_status_code = PACKET_SERIALIZATION_ERROR;
+    // }
+
+    // coap_send_transaction(cache_transaction);
+    // LOG_DBG("Sent response from cache entry.\n");
+
+    // return;
   }
 
   /* Sending a new request to the target before responding to source */
