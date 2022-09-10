@@ -183,9 +183,6 @@ handle_proxy_response(coap_message_t message[], const coap_endpoint_t *endpoint)
   LOG_INFO_("\n");
 
   /* Remove the transaction_pair from the LIST */
-  char temp_char[128];
-  sprintf(temp_char, "%s", transaction_pair->cache_uri);
-  LOG_DBG("TESTING new field: %s\n", temp_char);
   coap_proxy_clear_transaction_pair(transaction_pair);
 
   if(message->type == COAP_TYPE_CON && message->code == 0) {
