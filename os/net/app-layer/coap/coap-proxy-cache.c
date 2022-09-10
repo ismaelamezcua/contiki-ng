@@ -57,20 +57,16 @@ MEMB(cache_memb, coap_proxy_cache_entry_t, COAP_MAX_OPEN_TRANSACTIONS);
 LIST(cache_list);
 /*---------------------------------------------------------------------------*/
 void
-coap_proxy_new_cache_entry(char proxy_uri[],
-                           uint8_t *payload,
-                           uint16_t payload_len)
+coap_proxy_new_cache_entry(char proxy_uri[], char payload[])
 {
   coap_proxy_cache_entry_t *entry = memb_alloc(&cache_memb);
 
   if(entry) {
     memcpy(entry->proxy_uri, proxy_uri, strlen(proxy_uri));
-    entry->payload = payload;
-    entry->payload_len = payload_len;
+    memcpy(entry->payload, payload, strlen(payload));
 
-    LOG_DBG("Created a cache entry for URI %s: %p\n", entry->proxy_uri, entry);
-    LOG_DBG("PAYLOAD");
-    LOG_DBG_COAP_STRING((char *)entry->payload, entry->payload_len);
+    LOG_DBG("Created a cache entry for URI %s with PAYLOAD: %s: %p\n",
+            entry->proxy_uri, entry->payload, entry);
     list_add(cache_list, entry);
   }
 }

@@ -68,7 +68,7 @@ handle_proxy_request(coap_message_t message[], const coap_endpoint_t *endpoint)
   coap_endpoint_t target_endpoint;
   coap_transaction_t *source_transaction;
   coap_transaction_t *target_transaction;
-  coap_proxy_cache_entry_t cache;
+  coap_proxy_cache_entry_t *cache;
   char source_address[128];
   char cache_uri[128];
 
@@ -81,9 +81,7 @@ handle_proxy_request(coap_message_t message[], const coap_endpoint_t *endpoint)
 
   cache = coap_proxy_get_cache_by_uri(cache_uri);
   if(cache) {
-    LOG_DBG("We can send a response directly from here!: ");
-    LOG_DBG_COAP_STRING(cache->payload, cache->payload_len);
-    LOG_DBG_("\n");
+    LOG_DBG("We can send a response directly from here!: %s\n", cache->payload);
   }
 
   /* Sending a new request to the target before responding to source */
@@ -135,6 +133,7 @@ handle_proxy_response(coap_message_t message[], const coap_endpoint_t *endpoint)
   coap_transaction_pair_t *transaction_pair;
   coap_transaction_t *source_transaction;
   coap_transaction_t *target_transaction;
+  char cache_payload[128];
 
   LOG_DBG("  Handling a response with mid %u.\n", message->mid);
 
@@ -143,11 +142,13 @@ handle_proxy_response(coap_message_t message[], const coap_endpoint_t *endpoint)
   source_transaction = transaction_pair->source;
   target_transaction = transaction_pair->target;
 
+  /* TODO: Check for message format. The cache only supports text-based formats. */
   coap_proxy_cache_entry_t *cache = coap_proxy_get_cache_by_uri(transaction_pair->cache_uri);
   if(!cache) {
-    coap_proxy_new_cache_entry(transaction_pair->cache_uri,
-                               message->payload,
-                               message->payload_len);
+    strncpy(cache_payload, (char *)message->payload, sizeof(cache_payload) - 1);
+    cache_payload[sizeof(cache_payload) - 1] = '\n';
+
+    coap_proxy_new_cache_entry(transaction_pair->cache_uri, cache_payload);
   }
 
   /* Look for a cache entry for the source transaction */

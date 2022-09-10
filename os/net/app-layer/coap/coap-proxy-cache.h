@@ -47,19 +47,15 @@
 
 #include "coap-engine.h"
 
-/* Container for a CoAP cache entry */
 typedef struct coap_proxy_cache_entry {
   struct coap_proxy_cache_entry *next;
 
   char proxy_uri[128];
-  uint8_t *payload;
-  uint16_t payload_len;
+  char payload[128];
 } coap_proxy_cache_entry_t;
 
 void
-coap_proxy_new_cache_entry(char proxy_uri[],
-                           uint8_t *payload,
-                           uint16_t payload_len);
+coap_proxy_new_cache_entry(char proxy_uri[], char payload[]);
 
 void
 coap_proxy_clear_cache_entry(coap_proxy_cache_entry_t *entry);
