@@ -46,24 +46,49 @@
 #include "coap-proxy-cache.h"
 #include "lib/memb.h"
 #include "lib/list.h"
+#include "ctimer.h"
 
 /* Log configuration */
 #include "coap-log.h"
 #define LOG_MODULE "coap-proxy"
 #define LOG_LEVEL  LOG_LEVEL_COAP
 
+static struct ctimer timer;
+
 /*---------------------------------------------------------------------------*/
 MEMB(cache_memb, coap_proxy_cache_entry_t, COAP_MAX_OPEN_TRANSACTIONS);
 LIST(cache_list);
 /*---------------------------------------------------------------------------*/
+static void
+remove_timed_cache_entry(void *cache_uri_ptr)
+{
+  coap_proxy_cache_entry_t *entry = NULL;
+  char cache_uri[128];
+
+  strncpy(cache_uri, cache_uri_ptr, sizeof(cache_uri) - 1);
+  cache_uri[sizeof(cache_uri) - 1] = '\n';
+
+  LOG_DBG("Cache entry timer expired for %s. Removing from list.\n", cache_uri);
+
+  entry = coap_proxy_get_cache_by_uri(cache_uri);
+  if(entry) {
+    /* Cache hit, remove from list */
+    coap_proxy_clear_cache_entry(entry);
+  }
+}
+/*---------------------------------------------------------------------------*/
 void
-coap_proxy_new_cache_entry(char proxy_uri[], char payload[])
+coap_proxy_new_cache_entry(char proxy_uri[], char payload[], uint32_t max_age)
 {
   coap_proxy_cache_entry_t *entry = memb_alloc(&cache_memb);
+  if(max_age == 0) {
+    max_age = 60;
+  }
 
   if(entry) {
     memcpy(entry->proxy_uri, proxy_uri, strlen(proxy_uri));
     memcpy(entry->payload, payload, strlen(payload));
+    ctimer_set(&timer, max_age * CLOCK_SECOND, remove_timed_cache_entry, proxy_uri);
 
     LOG_DBG("Created a cache entry for URI %s with PAYLOAD: %s: %p\n",
             entry->proxy_uri, entry->payload, entry);
@@ -75,7 +100,7 @@ void
 coap_proxy_clear_cache_entry(coap_proxy_cache_entry_t *entry)
 {
   if(entry) {
-    LOG_DBG("Freeing cache entry: %p\n", entry);
+    LOG_DBG("Freeing cache entry %s: %p\n", entry->proxy_uri, entry);
     list_remove(cache_list, entry);
     memb_free(&cache_memb, entry);
   }

@@ -170,7 +170,8 @@ handle_proxy_response(coap_message_t message[], const coap_endpoint_t *endpoint)
     strncpy(cache_payload, (char *)message->payload, sizeof(cache_payload) - 1);
     cache_payload[sizeof(cache_payload) - 1] = '\n';
 
-    coap_proxy_new_cache_entry(transaction_pair->cache_uri, cache_payload);
+    /* TODO: Retrieve MaxAge value from the message. This value should be defined by the CoAP resource. */
+    coap_proxy_new_cache_entry(transaction_pair->cache_uri, cache_payload, 60);
   }
 
   /* Look for a cache entry for the source transaction */

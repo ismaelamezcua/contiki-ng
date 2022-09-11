@@ -52,10 +52,11 @@ typedef struct coap_proxy_cache_entry {
 
   char proxy_uri[128];
   char payload[128];
+  uint32_t max_age;
 } coap_proxy_cache_entry_t;
 
 void
-coap_proxy_new_cache_entry(char proxy_uri[], char payload[]);
+coap_proxy_new_cache_entry(char proxy_uri[], char payload[], uint32_t max_age);
 
 void
 coap_proxy_clear_cache_entry(coap_proxy_cache_entry_t *entry);
