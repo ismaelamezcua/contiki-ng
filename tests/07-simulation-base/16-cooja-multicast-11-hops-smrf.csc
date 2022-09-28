@@ -1,12 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <simconf>
-  <project EXPORT="discard">[APPS_DIR]/mrm</project>
-  <project EXPORT="discard">[APPS_DIR]/mspsim</project>
-  <project EXPORT="discard">[APPS_DIR]/serial_socket</project>
-  <project EXPORT="discard">[APPS_DIR]/powertracker</project>
   <simulation>
     <title>Multicast regression test</title>
-    <randomseed>123456</randomseed>
+    <randomseed>1</randomseed>
     <motedelay_us>1000000</motedelay_us>
     <radiomedium>
       org.contikios.cooja.radiomediums.UDGM
@@ -41,7 +37,6 @@ make -j$(CPUS) root.cooja TARGET=cooja DEFINES=UIP_MCAST6_CONF_ENGINE=UIP_MCAST6
       <moteinterface>org.contikios.cooja.contikimote.interfaces.ContikiCFS</moteinterface>
       <moteinterface>org.contikios.cooja.interfaces.Mote2MoteRelations</moteinterface>
       <moteinterface>org.contikios.cooja.interfaces.MoteAttributes</moteinterface>
-      <symbols>false</symbols>
     </motetype>
     <motetype>
       org.contikios.cooja.contikimote.ContikiMoteType
@@ -65,7 +60,6 @@ make -j$(CPUS) root.cooja TARGET=cooja DEFINES=UIP_MCAST6_CONF_ENGINE=UIP_MCAST6
       <moteinterface>org.contikios.cooja.contikimote.interfaces.ContikiCFS</moteinterface>
       <moteinterface>org.contikios.cooja.interfaces.Mote2MoteRelations</moteinterface>
       <moteinterface>org.contikios.cooja.interfaces.MoteAttributes</moteinterface>
-      <symbols>false</symbols>
     </motetype>
     <motetype>
       org.contikios.cooja.contikimote.ContikiMoteType
@@ -89,7 +83,6 @@ make -j$(CPUS) root.cooja TARGET=cooja DEFINES=UIP_MCAST6_CONF_ENGINE=UIP_MCAST6
       <moteinterface>org.contikios.cooja.contikimote.interfaces.ContikiCFS</moteinterface>
       <moteinterface>org.contikios.cooja.interfaces.Mote2MoteRelations</moteinterface>
       <moteinterface>org.contikios.cooja.interfaces.MoteAttributes</moteinterface>
-      <symbols>false</symbols>
     </motetype>
     <mote>
       <interface_config>
@@ -101,10 +94,6 @@ make -j$(CPUS) root.cooja TARGET=cooja DEFINES=UIP_MCAST6_CONF_ENGINE=UIP_MCAST6
       <interface_config>
         org.contikios.cooja.contikimote.interfaces.ContikiMoteID
         <id>1</id>
-      </interface_config>
-      <interface_config>
-        org.contikios.cooja.contikimote.interfaces.ContikiRadio
-        <bitrate>250.0</bitrate>
       </interface_config>
       <motetype_identifier>mtype612</motetype_identifier>
     </mote>
@@ -119,10 +108,6 @@ make -j$(CPUS) root.cooja TARGET=cooja DEFINES=UIP_MCAST6_CONF_ENGINE=UIP_MCAST6
         org.contikios.cooja.contikimote.interfaces.ContikiMoteID
         <id>2</id>
       </interface_config>
-      <interface_config>
-        org.contikios.cooja.contikimote.interfaces.ContikiRadio
-        <bitrate>250.0</bitrate>
-      </interface_config>
       <motetype_identifier>mtype890</motetype_identifier>
     </mote>
     <mote>
@@ -135,10 +120,6 @@ make -j$(CPUS) root.cooja TARGET=cooja DEFINES=UIP_MCAST6_CONF_ENGINE=UIP_MCAST6
       <interface_config>
         org.contikios.cooja.contikimote.interfaces.ContikiMoteID
         <id>3</id>
-      </interface_config>
-      <interface_config>
-        org.contikios.cooja.contikimote.interfaces.ContikiRadio
-        <bitrate>250.0</bitrate>
       </interface_config>
       <motetype_identifier>mtype890</motetype_identifier>
     </mote>
@@ -153,10 +134,6 @@ make -j$(CPUS) root.cooja TARGET=cooja DEFINES=UIP_MCAST6_CONF_ENGINE=UIP_MCAST6
         org.contikios.cooja.contikimote.interfaces.ContikiMoteID
         <id>4</id>
       </interface_config>
-      <interface_config>
-        org.contikios.cooja.contikimote.interfaces.ContikiRadio
-        <bitrate>250.0</bitrate>
-      </interface_config>
       <motetype_identifier>mtype890</motetype_identifier>
     </mote>
     <mote>
@@ -169,10 +146,6 @@ make -j$(CPUS) root.cooja TARGET=cooja DEFINES=UIP_MCAST6_CONF_ENGINE=UIP_MCAST6
       <interface_config>
         org.contikios.cooja.contikimote.interfaces.ContikiMoteID
         <id>5</id>
-      </interface_config>
-      <interface_config>
-        org.contikios.cooja.contikimote.interfaces.ContikiRadio
-        <bitrate>250.0</bitrate>
       </interface_config>
       <motetype_identifier>mtype890</motetype_identifier>
     </mote>
@@ -187,10 +160,6 @@ make -j$(CPUS) root.cooja TARGET=cooja DEFINES=UIP_MCAST6_CONF_ENGINE=UIP_MCAST6
         org.contikios.cooja.contikimote.interfaces.ContikiMoteID
         <id>6</id>
       </interface_config>
-      <interface_config>
-        org.contikios.cooja.contikimote.interfaces.ContikiRadio
-        <bitrate>250.0</bitrate>
-      </interface_config>
       <motetype_identifier>mtype890</motetype_identifier>
     </mote>
     <mote>
@@ -203,10 +172,6 @@ make -j$(CPUS) root.cooja TARGET=cooja DEFINES=UIP_MCAST6_CONF_ENGINE=UIP_MCAST6
       <interface_config>
         org.contikios.cooja.contikimote.interfaces.ContikiMoteID
         <id>7</id>
-      </interface_config>
-      <interface_config>
-        org.contikios.cooja.contikimote.interfaces.ContikiRadio
-        <bitrate>250.0</bitrate>
       </interface_config>
       <motetype_identifier>mtype890</motetype_identifier>
     </mote>
@@ -221,10 +186,6 @@ make -j$(CPUS) root.cooja TARGET=cooja DEFINES=UIP_MCAST6_CONF_ENGINE=UIP_MCAST6
         org.contikios.cooja.contikimote.interfaces.ContikiMoteID
         <id>8</id>
       </interface_config>
-      <interface_config>
-        org.contikios.cooja.contikimote.interfaces.ContikiRadio
-        <bitrate>250.0</bitrate>
-      </interface_config>
       <motetype_identifier>mtype890</motetype_identifier>
     </mote>
     <mote>
@@ -237,10 +198,6 @@ make -j$(CPUS) root.cooja TARGET=cooja DEFINES=UIP_MCAST6_CONF_ENGINE=UIP_MCAST6
       <interface_config>
         org.contikios.cooja.contikimote.interfaces.ContikiMoteID
         <id>9</id>
-      </interface_config>
-      <interface_config>
-        org.contikios.cooja.contikimote.interfaces.ContikiRadio
-        <bitrate>250.0</bitrate>
       </interface_config>
       <motetype_identifier>mtype890</motetype_identifier>
     </mote>
@@ -255,10 +212,6 @@ make -j$(CPUS) root.cooja TARGET=cooja DEFINES=UIP_MCAST6_CONF_ENGINE=UIP_MCAST6
         org.contikios.cooja.contikimote.interfaces.ContikiMoteID
         <id>10</id>
       </interface_config>
-      <interface_config>
-        org.contikios.cooja.contikimote.interfaces.ContikiRadio
-        <bitrate>250.0</bitrate>
-      </interface_config>
       <motetype_identifier>mtype890</motetype_identifier>
     </mote>
     <mote>
@@ -272,10 +225,6 @@ make -j$(CPUS) root.cooja TARGET=cooja DEFINES=UIP_MCAST6_CONF_ENGINE=UIP_MCAST6
         org.contikios.cooja.contikimote.interfaces.ContikiMoteID
         <id>11</id>
       </interface_config>
-      <interface_config>
-        org.contikios.cooja.contikimote.interfaces.ContikiRadio
-        <bitrate>250.0</bitrate>
-      </interface_config>
       <motetype_identifier>mtype890</motetype_identifier>
     </mote>
     <mote>
@@ -288,10 +237,6 @@ make -j$(CPUS) root.cooja TARGET=cooja DEFINES=UIP_MCAST6_CONF_ENGINE=UIP_MCAST6
       <interface_config>
         org.contikios.cooja.contikimote.interfaces.ContikiMoteID
         <id>12</id>
-      </interface_config>
-      <interface_config>
-        org.contikios.cooja.contikimote.interfaces.ContikiRadio
-        <bitrate>250.0</bitrate>
       </interface_config>
       <motetype_identifier>mtype956</motetype_identifier>
     </mote>
@@ -363,3 +308,4 @@ log.testOK(); /* Report test success and quit */</script>
     <location_y>77</location_y>
   </plugin>
 </simconf>
+
