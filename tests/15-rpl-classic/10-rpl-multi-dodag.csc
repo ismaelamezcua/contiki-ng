@@ -2,7 +2,7 @@
 <simconf>
   <simulation>
     <title>My simulation</title>
-    <randomseed>123456</randomseed>
+    <randomseed>1</randomseed>
     <motedelay_us>1000000</motedelay_us>
     <radiomedium>
       org.contikios.cooja.radiomediums.UDGM
@@ -37,7 +37,6 @@ make -j$(CPUS) sender-node.cooja TARGET=cooja</commands>
       <moteinterface>org.contikios.cooja.contikimote.interfaces.ContikiCFS</moteinterface>
       <moteinterface>org.contikios.cooja.interfaces.Mote2MoteRelations</moteinterface>
       <moteinterface>org.contikios.cooja.interfaces.MoteAttributes</moteinterface>
-      <symbols>false</symbols>
     </motetype>
     <motetype>
       org.contikios.cooja.contikimote.ContikiMoteType
@@ -61,7 +60,6 @@ make -j$(CPUS) sender-node.cooja TARGET=cooja</commands>
       <moteinterface>org.contikios.cooja.contikimote.interfaces.ContikiCFS</moteinterface>
       <moteinterface>org.contikios.cooja.interfaces.Mote2MoteRelations</moteinterface>
       <moteinterface>org.contikios.cooja.interfaces.MoteAttributes</moteinterface>
-      <symbols>false</symbols>
     </motetype>
     <motetype>
       org.contikios.cooja.contikimote.ContikiMoteType
@@ -85,7 +83,6 @@ make -j$(CPUS) sender-node.cooja TARGET=cooja</commands>
       <moteinterface>org.contikios.cooja.contikimote.interfaces.ContikiCFS</moteinterface>
       <moteinterface>org.contikios.cooja.interfaces.Mote2MoteRelations</moteinterface>
       <moteinterface>org.contikios.cooja.interfaces.MoteAttributes</moteinterface>
-      <symbols>false</symbols>
     </motetype>
     <mote>
       <interface_config>
@@ -97,10 +94,6 @@ make -j$(CPUS) sender-node.cooja TARGET=cooja</commands>
       <interface_config>
         org.contikios.cooja.contikimote.interfaces.ContikiMoteID
         <id>1</id>
-      </interface_config>
-      <interface_config>
-        org.contikios.cooja.contikimote.interfaces.ContikiRadio
-        <bitrate>250.0</bitrate>
       </interface_config>
       <motetype_identifier>mtype306</motetype_identifier>
     </mote>
@@ -115,10 +108,6 @@ make -j$(CPUS) sender-node.cooja TARGET=cooja</commands>
         org.contikios.cooja.contikimote.interfaces.ContikiMoteID
         <id>2</id>
       </interface_config>
-      <interface_config>
-        org.contikios.cooja.contikimote.interfaces.ContikiRadio
-        <bitrate>250.0</bitrate>
-      </interface_config>
       <motetype_identifier>mtype301</motetype_identifier>
     </mote>
     <mote>
@@ -131,10 +120,6 @@ make -j$(CPUS) sender-node.cooja TARGET=cooja</commands>
       <interface_config>
         org.contikios.cooja.contikimote.interfaces.ContikiMoteID
         <id>6</id>
-      </interface_config>
-      <interface_config>
-        org.contikios.cooja.contikimote.interfaces.ContikiRadio
-        <bitrate>250.0</bitrate>
       </interface_config>
       <motetype_identifier>mtype306</motetype_identifier>
     </mote>
@@ -149,10 +134,6 @@ make -j$(CPUS) sender-node.cooja TARGET=cooja</commands>
         org.contikios.cooja.contikimote.interfaces.ContikiMoteID
         <id>3</id>
       </interface_config>
-      <interface_config>
-        org.contikios.cooja.contikimote.interfaces.ContikiRadio
-        <bitrate>250.0</bitrate>
-      </interface_config>
       <motetype_identifier>mtype306</motetype_identifier>
     </mote>
     <mote>
@@ -165,10 +146,6 @@ make -j$(CPUS) sender-node.cooja TARGET=cooja</commands>
       <interface_config>
         org.contikios.cooja.contikimote.interfaces.ContikiMoteID
         <id>4</id>
-      </interface_config>
-      <interface_config>
-        org.contikios.cooja.contikimote.interfaces.ContikiRadio
-        <bitrate>250.0</bitrate>
       </interface_config>
       <motetype_identifier>mtype306</motetype_identifier>
     </mote>
@@ -183,26 +160,18 @@ make -j$(CPUS) sender-node.cooja TARGET=cooja</commands>
         org.contikios.cooja.contikimote.interfaces.ContikiMoteID
         <id>5</id>
       </interface_config>
-      <interface_config>
-        org.contikios.cooja.contikimote.interfaces.ContikiRadio
-        <bitrate>250.0</bitrate>
-      </interface_config>
       <motetype_identifier>mtype306</motetype_identifier>
     </mote>
     <mote>
       <interface_config>
         org.contikios.cooja.interfaces.Position
-        <x>43</x>
-        <y>98</y>
+        <x>43.0</x>
+        <y>98.0</y>
         <z>0.0</z>
       </interface_config>
       <interface_config>
         org.contikios.cooja.contikimote.interfaces.ContikiMoteID
         <id>7</id>
-      </interface_config>
-      <interface_config>
-        org.contikios.cooja.contikimote.interfaces.ContikiRadio
-        <bitrate>250.0</bitrate>
       </interface_config>
       <motetype_identifier>mtype820</motetype_identifier>
     </mote>
@@ -216,10 +185,6 @@ make -j$(CPUS) sender-node.cooja TARGET=cooja</commands>
       <interface_config>
         org.contikios.cooja.contikimote.interfaces.ContikiMoteID
         <id>8</id>
-      </interface_config>
-      <interface_config>
-        org.contikios.cooja.contikimote.interfaces.ContikiRadio
-        <bitrate>250.0</bitrate>
       </interface_config>
       <motetype_identifier>mtype820</motetype_identifier>
     </mote>
@@ -379,3 +344,4 @@ while(true) {&#xD;
     <location_y>43</location_y>
   </plugin>
 </simconf>
+

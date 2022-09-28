@@ -5,6 +5,8 @@ PLATFORMS_ONLY = cc26x0-cc13x0
 
 MODULES_REL += ./resources
 
+NEEDS_CONTIKI_VERSION_FILES += res-device.c
+
 PROJECT_SOURCEFILES += coap-server.c net-uart.c mqtt-client.c
 PROJECT_SOURCEFILES += httpd-simple.c
 
@@ -19,6 +21,8 @@ include $(CONTIKI)/Makefile.dir-variables
 MODULES += $(CONTIKI_NG_APP_LAYER_DIR)/mqtt $(CONTIKI_NG_APP_LAYER_DIR)/coap
 
 # FIXME: Fix the code and remove the next line.
-CFLAGS += -Wno-stringop-truncation
+ifneq ($(CLANG),1)
+  CFLAGS += -Wno-stringop-truncation
+endif
 
 include $(CONTIKI)/Makefile.include
