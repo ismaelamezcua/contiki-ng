@@ -56,7 +56,7 @@
 /* Log configuration */
 #include "coap-log.h"
 #define LOG_MODULE "coap-proxy"
-#define LOG_LEVEL  LOG_LEVEL_COAP
+#define LOG_LEVEL LOG_LEVEL_COAP
 
 /*---------------------------------------------------------------------------*/
 /*- Internal Proxy Engine ---------------------------------------------------*/
@@ -74,8 +74,7 @@ handle_proxy_request(coap_message_t message[], const coap_endpoint_t *endpoint)
 
   LOG_DBG("  Handling a request with mid %u.\n", message->mid);
 
-  strncpy(cache_uri, message->proxy_uri, sizeof(cache_uri) - 1);
-  cache_uri[sizeof(cache_uri) - 1] = '\n';
+  strncpy(cache_uri, message->proxy_uri, (size_t)message->proxy_uri_len);
 
   cache = coap_proxy_get_cache_by_uri(cache_uri);
   if(cache) {
@@ -110,8 +109,12 @@ handle_proxy_request(coap_message_t message[], const coap_endpoint_t *endpoint)
     uiplib_ipaddr_snprint(source_address, sizeof(source_address), &endpoint->ipaddr);
 
     /* Extract Uri-Path from the Proxy-Uri option */
+    /* FIXME: There is a problem with extracting the request_path from proxy_uri */
     char *locate_bracket = strchr(message->proxy_uri, ']');
     char *request_path = locate_bracket + 1;
+
+    /* FIXME: Use fixed request path to avoid segmentation fault */
+    request_path = "/sensors/humidity";
 
     /* Creates a new endpoint for the proxy and the target */
     if((coap_endpoint_parse(message->proxy_uri, message->proxy_uri_len, &target_endpoint)) == 0) {
