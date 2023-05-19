@@ -17,7 +17,7 @@
     </events>
     <motetype>
       org.contikios.cooja.contikimote.ContikiMoteType
-      <identifier>mtype50353615</identifier>
+      <identifier>mtype602700104</identifier>
       <description>Border Router</description>
       <source>[CONFIG_DIR]/../rpl-border-router/border-router.c</source>
       <commands>make -j$(CPUS) border-router.cooja TARGET=cooja</commands>
@@ -41,7 +41,7 @@
     </motetype>
     <motetype>
       org.contikios.cooja.contikimote.ContikiMoteType
-      <identifier>mtype12019608</identifier>
+      <identifier>mtype391417615</identifier>
       <description>CoAP Proxy</description>
       <source>[CONFIG_DIR]/simple-coap-proxy/simple-coap-proxy.c</source>
       <commands>make -j$(CPUS) simple-coap-proxy.cooja TARGET=cooja</commands>
@@ -65,7 +65,7 @@
     </motetype>
     <motetype>
       org.contikios.cooja.contikimote.ContikiMoteType
-      <identifier>mtype11933981</identifier>
+      <identifier>mtype773745134</identifier>
       <description>CoAP Server</description>
       <source>[CONFIG_DIR]/simple-coap-server/simple-coap-server.c</source>
       <commands>make -j$(CPUS) simple-coap-server.cooja TARGET=cooja</commands>
@@ -98,7 +98,7 @@
         org.contikios.cooja.contikimote.interfaces.ContikiMoteID
         <id>1</id>
       </interface_config>
-      <motetype_identifier>mtype50353615</motetype_identifier>
+      <motetype_identifier>mtype602700104</motetype_identifier>
     </mote>
     <mote>
       <interface_config>
@@ -111,46 +111,189 @@
         org.contikios.cooja.contikimote.interfaces.ContikiMoteID
         <id>2</id>
       </interface_config>
-      <motetype_identifier>mtype12019608</motetype_identifier>
+      <motetype_identifier>mtype391417615</motetype_identifier>
     </mote>
     <mote>
       <interface_config>
         org.contikios.cooja.interfaces.Position
-        <x>39.71326369229384</x>
-        <y>37.339034576634205</y>
+        <x>25.819087647936474</x>
+        <y>30.8550857559341</y>
         <z>0.0</z>
       </interface_config>
       <interface_config>
         org.contikios.cooja.contikimote.interfaces.ContikiMoteID
         <id>3</id>
       </interface_config>
-      <motetype_identifier>mtype11933981</motetype_identifier>
+      <motetype_identifier>mtype773745134</motetype_identifier>
     </mote>
     <mote>
       <interface_config>
         org.contikios.cooja.interfaces.Position
-        <x>61.76793078344679</x>
-        <y>59.730747489044006</y>
+        <x>22.86423785924616</x>
+        <y>-6.961297523871366</y>
         <z>0.0</z>
       </interface_config>
       <interface_config>
         org.contikios.cooja.contikimote.interfaces.ContikiMoteID
         <id>4</id>
       </interface_config>
-      <motetype_identifier>mtype11933981</motetype_identifier>
+      <motetype_identifier>mtype773745134</motetype_identifier>
     </mote>
     <mote>
       <interface_config>
         org.contikios.cooja.interfaces.Position
-        <x>79.00904573270391</x>
-        <y>29.39497732516367</y>
+        <x>57.241503263210696</x>
+        <y>6.701156452713295</y>
         <z>0.0</z>
       </interface_config>
       <interface_config>
         org.contikios.cooja.contikimote.interfaces.ContikiMoteID
         <id>5</id>
       </interface_config>
-      <motetype_identifier>mtype11933981</motetype_identifier>
+      <motetype_identifier>mtype773745134</motetype_identifier>
+    </mote>
+    <mote>
+      <interface_config>
+        org.contikios.cooja.interfaces.Position
+        <x>6.717626809379979</x>
+        <y>-42.28957371746469</y>
+        <z>0.0</z>
+      </interface_config>
+      <interface_config>
+        org.contikios.cooja.contikimote.interfaces.ContikiMoteID
+        <id>6</id>
+      </interface_config>
+      <motetype_identifier>mtype773745134</motetype_identifier>
+    </mote>
+    <mote>
+      <interface_config>
+        org.contikios.cooja.interfaces.Position
+        <x>32.24251731517789</x>
+        <y>-45.05000455198543</y>
+        <z>0.0</z>
+      </interface_config>
+      <interface_config>
+        org.contikios.cooja.contikimote.interfaces.ContikiMoteID
+        <id>7</id>
+      </interface_config>
+      <motetype_identifier>mtype773745134</motetype_identifier>
+    </mote>
+    <mote>
+      <interface_config>
+        org.contikios.cooja.interfaces.Position
+        <x>69.91435114507156</x>
+        <y>-32.64747374816808</y>
+        <z>0.0</z>
+      </interface_config>
+      <interface_config>
+        org.contikios.cooja.contikimote.interfaces.ContikiMoteID
+        <id>8</id>
+      </interface_config>
+      <motetype_identifier>mtype773745134</motetype_identifier>
+    </mote>
+    <mote>
+      <interface_config>
+        org.contikios.cooja.interfaces.Position
+        <x>92.8148472324587</x>
+        <y>-13.60048447895305</y>
+        <z>0.0</z>
+      </interface_config>
+      <interface_config>
+        org.contikios.cooja.contikimote.interfaces.ContikiMoteID
+        <id>9</id>
+      </interface_config>
+      <motetype_identifier>mtype773745134</motetype_identifier>
+    </mote>
+    <mote>
+      <interface_config>
+        org.contikios.cooja.interfaces.Position
+        <x>61.29255518981397</x>
+        <y>60.23245794764904</y>
+        <z>0.0</z>
+      </interface_config>
+      <interface_config>
+        org.contikios.cooja.contikimote.interfaces.ContikiMoteID
+        <id>10</id>
+      </interface_config>
+      <motetype_identifier>mtype773745134</motetype_identifier>
+    </mote>
+    <mote>
+      <interface_config>
+        org.contikios.cooja.interfaces.Position
+        <x>97.95640219640784</x>
+        <y>46.2012383715531</y>
+        <z>0.0</z>
+      </interface_config>
+      <interface_config>
+        org.contikios.cooja.contikimote.interfaces.ContikiMoteID
+        <id>11</id>
+      </interface_config>
+      <motetype_identifier>mtype773745134</motetype_identifier>
+    </mote>
+    <mote>
+      <interface_config>
+        org.contikios.cooja.interfaces.Position
+        <x>97.01466500961233</x>
+        <y>84.8152232549874</y>
+        <z>0.0</z>
+      </interface_config>
+      <interface_config>
+        org.contikios.cooja.contikimote.interfaces.ContikiMoteID
+        <id>12</id>
+      </interface_config>
+      <motetype_identifier>mtype773745134</motetype_identifier>
+    </mote>
+    <mote>
+      <interface_config>
+        org.contikios.cooja.interfaces.Position
+        <x>137.8152160741198</x>
+        <y>26.725941392094512</y>
+        <z>0.0</z>
+      </interface_config>
+      <interface_config>
+        org.contikios.cooja.contikimote.interfaces.ContikiMoteID
+        <id>13</id>
+      </interface_config>
+      <motetype_identifier>mtype773745134</motetype_identifier>
+    </mote>
+    <mote>
+      <interface_config>
+        org.contikios.cooja.interfaces.Position
+        <x>141.74195970018835</x>
+        <y>47.919863499028395</y>
+        <z>0.0</z>
+      </interface_config>
+      <interface_config>
+        org.contikios.cooja.contikimote.interfaces.ContikiMoteID
+        <id>14</id>
+      </interface_config>
+      <motetype_identifier>mtype773745134</motetype_identifier>
+    </mote>
+    <mote>
+      <interface_config>
+        org.contikios.cooja.interfaces.Position
+        <x>138.98874469634038</x>
+        <y>100.29086609844094</y>
+        <z>0.0</z>
+      </interface_config>
+      <interface_config>
+        org.contikios.cooja.contikimote.interfaces.ContikiMoteID
+        <id>15</id>
+      </interface_config>
+      <motetype_identifier>mtype773745134</motetype_identifier>
+    </mote>
+    <mote>
+      <interface_config>
+        org.contikios.cooja.interfaces.Position
+        <x>110.43515825387483</x>
+        <y>118.98365098138224</y>
+        <z>0.0</z>
+      </interface_config>
+      <interface_config>
+        org.contikios.cooja.contikimote.interfaces.ContikiMoteID
+        <id>16</id>
+      </interface_config>
+      <motetype_identifier>mtype773745134</motetype_identifier>
     </mote>
   </simulation>
   <plugin>
@@ -163,10 +306,10 @@
       <skin>org.contikios.cooja.plugins.skins.UDGMVisualizerSkin</skin>
       <skin>org.contikios.cooja.plugins.skins.AddressVisualizerSkin</skin>
       <skin>org.contikios.cooja.plugins.skins.MoteTypeVisualizerSkin</skin>
-      <viewport>3.8301139901520407 0.0 0.0 3.8301139901520407 59.37730950118461 -83.45416515538186</viewport>
+      <viewport>2.1591780544758135 0.0 0.0 2.1591780544758135 41.10085207679798 21.618274053174332</viewport>
     </plugin_config>
     <width>400</width>
-    <z>1</z>
+    <z>0</z>
     <height>400</height>
     <location_x>1</location_x>
     <location_y>1</location_y>
@@ -192,6 +335,17 @@
       <mote>2</mote>
       <mote>3</mote>
       <mote>4</mote>
+      <mote>5</mote>
+      <mote>6</mote>
+      <mote>7</mote>
+      <mote>8</mote>
+      <mote>9</mote>
+      <mote>10</mote>
+      <mote>11</mote>
+      <mote>12</mote>
+      <mote>13</mote>
+      <mote>14</mote>
+      <mote>15</mote>
       <showRadioRXTX />
       <showRadioHW />
       <showLEDs />
@@ -223,7 +377,7 @@
       <bound>false</bound>
     </plugin_config>
     <width>362</width>
-    <z>0</z>
+    <z>1</z>
     <height>116</height>
     <location_x>430</location_x>
     <location_y>190</location_y>
