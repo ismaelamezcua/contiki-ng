@@ -2,7 +2,7 @@
 <simconf>
   <simulation>
     <title>Border Router CoAP Network</title>
-    <speedlimit>2.0</speedlimit>
+    <speedlimit>1.0</speedlimit>
     <randomseed>123456</randomseed>
     <motedelay_us>1000000</motedelay_us>
     <radiomedium>
@@ -17,7 +17,7 @@
     </events>
     <motetype>
       org.contikios.cooja.contikimote.ContikiMoteType
-      <identifier>mtype602700104</identifier>
+      <identifier>mtype546893666</identifier>
       <description>Border Router</description>
       <source>[CONFIG_DIR]/../rpl-border-router/border-router.c</source>
       <commands>make -j$(CPUS) border-router.cooja TARGET=cooja</commands>
@@ -41,7 +41,7 @@
     </motetype>
     <motetype>
       org.contikios.cooja.contikimote.ContikiMoteType
-      <identifier>mtype391417615</identifier>
+      <identifier>mtype727157631</identifier>
       <description>CoAP Proxy</description>
       <source>[CONFIG_DIR]/simple-coap-proxy/simple-coap-proxy.c</source>
       <commands>make -j$(CPUS) simple-coap-proxy.cooja TARGET=cooja</commands>
@@ -65,7 +65,7 @@
     </motetype>
     <motetype>
       org.contikios.cooja.contikimote.ContikiMoteType
-      <identifier>mtype773745134</identifier>
+      <identifier>mtype36638400</identifier>
       <description>CoAP Server</description>
       <source>[CONFIG_DIR]/simple-coap-server/simple-coap-server.c</source>
       <commands>make -j$(CPUS) simple-coap-server.cooja TARGET=cooja</commands>
@@ -98,7 +98,7 @@
         org.contikios.cooja.contikimote.interfaces.ContikiMoteID
         <id>1</id>
       </interface_config>
-      <motetype_identifier>mtype602700104</motetype_identifier>
+      <motetype_identifier>mtype546893666</motetype_identifier>
     </mote>
     <mote>
       <interface_config>
@@ -111,7 +111,7 @@
         org.contikios.cooja.contikimote.interfaces.ContikiMoteID
         <id>2</id>
       </interface_config>
-      <motetype_identifier>mtype391417615</motetype_identifier>
+      <motetype_identifier>mtype727157631</motetype_identifier>
     </mote>
     <mote>
       <interface_config>
@@ -124,7 +124,7 @@
         org.contikios.cooja.contikimote.interfaces.ContikiMoteID
         <id>3</id>
       </interface_config>
-      <motetype_identifier>mtype773745134</motetype_identifier>
+      <motetype_identifier>mtype36638400</motetype_identifier>
     </mote>
     <mote>
       <interface_config>
@@ -137,7 +137,7 @@
         org.contikios.cooja.contikimote.interfaces.ContikiMoteID
         <id>4</id>
       </interface_config>
-      <motetype_identifier>mtype773745134</motetype_identifier>
+      <motetype_identifier>mtype36638400</motetype_identifier>
     </mote>
     <mote>
       <interface_config>
@@ -150,7 +150,7 @@
         org.contikios.cooja.contikimote.interfaces.ContikiMoteID
         <id>5</id>
       </interface_config>
-      <motetype_identifier>mtype773745134</motetype_identifier>
+      <motetype_identifier>mtype36638400</motetype_identifier>
     </mote>
     <mote>
       <interface_config>
@@ -163,7 +163,7 @@
         org.contikios.cooja.contikimote.interfaces.ContikiMoteID
         <id>6</id>
       </interface_config>
-      <motetype_identifier>mtype773745134</motetype_identifier>
+      <motetype_identifier>mtype36638400</motetype_identifier>
     </mote>
     <mote>
       <interface_config>
@@ -176,7 +176,7 @@
         org.contikios.cooja.contikimote.interfaces.ContikiMoteID
         <id>7</id>
       </interface_config>
-      <motetype_identifier>mtype773745134</motetype_identifier>
+      <motetype_identifier>mtype36638400</motetype_identifier>
     </mote>
     <mote>
       <interface_config>
@@ -189,7 +189,7 @@
         org.contikios.cooja.contikimote.interfaces.ContikiMoteID
         <id>8</id>
       </interface_config>
-      <motetype_identifier>mtype773745134</motetype_identifier>
+      <motetype_identifier>mtype36638400</motetype_identifier>
     </mote>
     <mote>
       <interface_config>
@@ -202,7 +202,7 @@
         org.contikios.cooja.contikimote.interfaces.ContikiMoteID
         <id>9</id>
       </interface_config>
-      <motetype_identifier>mtype773745134</motetype_identifier>
+      <motetype_identifier>mtype36638400</motetype_identifier>
     </mote>
     <mote>
       <interface_config>
@@ -215,7 +215,7 @@
         org.contikios.cooja.contikimote.interfaces.ContikiMoteID
         <id>10</id>
       </interface_config>
-      <motetype_identifier>mtype773745134</motetype_identifier>
+      <motetype_identifier>mtype36638400</motetype_identifier>
     </mote>
     <mote>
       <interface_config>
@@ -228,7 +228,7 @@
         org.contikios.cooja.contikimote.interfaces.ContikiMoteID
         <id>11</id>
       </interface_config>
-      <motetype_identifier>mtype773745134</motetype_identifier>
+      <motetype_identifier>mtype36638400</motetype_identifier>
     </mote>
     <mote>
       <interface_config>
@@ -241,7 +241,7 @@
         org.contikios.cooja.contikimote.interfaces.ContikiMoteID
         <id>12</id>
       </interface_config>
-      <motetype_identifier>mtype773745134</motetype_identifier>
+      <motetype_identifier>mtype36638400</motetype_identifier>
     </mote>
     <mote>
       <interface_config>
@@ -254,7 +254,7 @@
         org.contikios.cooja.contikimote.interfaces.ContikiMoteID
         <id>13</id>
       </interface_config>
-      <motetype_identifier>mtype773745134</motetype_identifier>
+      <motetype_identifier>mtype36638400</motetype_identifier>
     </mote>
     <mote>
       <interface_config>
@@ -267,7 +267,7 @@
         org.contikios.cooja.contikimote.interfaces.ContikiMoteID
         <id>14</id>
       </interface_config>
-      <motetype_identifier>mtype773745134</motetype_identifier>
+      <motetype_identifier>mtype36638400</motetype_identifier>
     </mote>
     <mote>
       <interface_config>
@@ -280,7 +280,7 @@
         org.contikios.cooja.contikimote.interfaces.ContikiMoteID
         <id>15</id>
       </interface_config>
-      <motetype_identifier>mtype773745134</motetype_identifier>
+      <motetype_identifier>mtype36638400</motetype_identifier>
     </mote>
     <mote>
       <interface_config>
@@ -293,7 +293,7 @@
         org.contikios.cooja.contikimote.interfaces.ContikiMoteID
         <id>16</id>
       </interface_config>
-      <motetype_identifier>mtype773745134</motetype_identifier>
+      <motetype_identifier>mtype36638400</motetype_identifier>
     </mote>
   </simulation>
   <plugin>
